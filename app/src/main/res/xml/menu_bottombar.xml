@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs xmlns:android="http://schemas.android.com/apk/res/android">
+    <tab
+        id="@+id/bb_menu_data"
+        icon="@drawable/ic_library_books_black_36dp"
+        title="Data Pencatatan"
+        activeColor="#FFFFFF"
+        />
+    <tab
+        id="@+id/bb_menu_peta"
+        icon="@drawable/ic_location_on_black_36dp"
+        title="Peta"
+        activeColor="#FFFFFF"
+
+        />
+    <tab
+        id="@+id/bb_menu_jadwal"
+        icon="@drawable/ic_assignment_black_36dp"
+        title="Jadwal Penyuluhan"
+        activeColor="#FFFFFF"
+
+        />
+
+    <tab
+        id="@+id/bb_menu_subsidi"
+        icon="@drawable/ic_account_box_black_36dp"
+        title="Jadwal Penyuluhan"
+        activeColor="#FFFFFF"
+
+        />
+
+</tabs>

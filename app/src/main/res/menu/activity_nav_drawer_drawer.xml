@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bb_menu_recents"
+        android:icon="@drawable/ic_library_books_black_36dp"
+        android:title="Data Pencatatan" />
+    <item
+        android:id="@+id/bb_menu_favorites"
+        android:icon="@drawable/ic_location_on_black_36dp"
+        android:title="Peta" />
+    <item
+        android:id="@+id/bb_menu_nearby"
+        android:icon="@drawable/ic_assignment_black_36dp"
+        android:title="Jadwal Penyuluhan" />
+    <item
+        android:id="@+id/bb_menu_friends"
+        android:icon="@drawable/ic_account_box_black_36dp"
+        android:title="Penerima Subsidi" />
+</menu>

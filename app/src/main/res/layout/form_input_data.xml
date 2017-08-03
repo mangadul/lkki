@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_scrollFlags="scroll"
+    android:orientation="vertical"
+    tools:theme="@style/AppTheme.NoActionBar"
+    android:fillViewport="true">
+
+
+<LinearLayout
+    android:id="@+id/form_input"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+
+    <!--
+    <Spinner
+        android:id="@+id/jenis_institusi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    -->
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/input_tempat"
+        android:hint="@string/tempat" />
+
+    <!--
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/input_alamat"
+        android:hint="@string/alamat" />
+    -->
+
+    <EditText
+        android:id="@+id/input_jalan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/jalan" />
+
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/wrapper2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1.0">
+
+            <EditText
+                android:id="@+id/rt"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/rw"
+                android:layout_weight=".50"
+                android:hint="@string/rt"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@id/rw"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_weight=".50"
+                android:hint="@string/rw"
+                android:inputType="number" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/input_kelurahan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/kelurahan" />
+
+    <!--
+    <EditText
+        android:id="@+id/input_kecamatan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/kecamatan" />
+        -->
+
+    <com.toptoche.searchablespinnerlibrary.SearchableSpinner
+        android:id="@+id/provinsi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.toptoche.searchablespinnerlibrary.SearchableSpinner
+        android:id="@+id/kota"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.toptoche.searchablespinnerlibrary.SearchableSpinner
+        android:id="@+id/kecamatan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.toptoche.searchablespinnerlibrary.SearchableSpinner
+        android:id="@+id/desa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/input_nama"
+        android:hint="@string/nama" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/input_jabatan"
+        android:hint="@string/jabatan" />
+
+    <!--
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/input_penerima_proposal"
+        android:hint="@string/penerima_proposal" />
+     -->
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/wrapper5"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1.0">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".50"
+                android:id="@+id/input_nohp"
+                android:hint="@string/no_hp"
+                android:inputType="number" />
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".50"
+                android:hint="@string/no_kantor"
+                android:id="@+id/input_nokantor"
+                android:inputType="number" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/email"
+        android:id="@+id/input_email"
+        android:inputType="textEmailAddress" />
+
+    <!--
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/wrapper4"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1.0">
+
+            <Spinner
+                android:id="@+id/kecamatan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".50"
+                android:clickable="false" />
+
+            <Spinner
+                android:id="@+id/desa"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".50"
+                android:clickable="false" />
+        </LinearLayout>
+    </RelativeLayout>
+    -->
+
+    <RelativeLayout
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content">
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/in_date"
+            android:inputType="none"
+            android:textIsSelectable="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tgl Penyuluhan"
+            android:id="@+id/btn_date"
+            android:layout_alignBottom="@+id/in_date"
+            android:layout_toRightOf="@+id/in_date"
+            android:layout_toEndOf="@+id/in_date" />
+
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/in_time"
+            android:inputType="none"
+            android:textIsSelectable="true"
+            android:layout_below="@+id/in_date"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jam Penyuluhan"
+            android:id="@+id/btn_time"
+            android:layout_below="@+id/btn_date"
+            android:layout_alignLeft="@+id/btn_date"
+            android:layout_alignStart="@+id/btn_date" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/input_durasi"
+        android:layout_width="match_parent"
+        android:inputType="number"
+        android:layout_height="wrap_content"
+        android:hint="@string/durasi" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/wrapper"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1.0">
+
+            <EditText
+                android:id="@+id/lokasi_lat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/lokasi_long"
+                android:layout_weight=".50"
+                android:hint="@string/lokasi_lat"
+                android:textIsSelectable="true"
+                android:inputType="none" />
+
+            <EditText
+                android:id="@+id/lokasi_long"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_weight=".50"
+                android:hint="@string/lokasi_long"
+                android:textIsSelectable="true"
+                android:inputType="none" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:id="@+id/input_tag"
+        android:hint="@string/keterangan" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:id="@+id/btnSimpan"
+        android:text="@string/save" />
+
+</LinearLayout>
+
+</ScrollView>

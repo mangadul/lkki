@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_pendataan"
+            android:icon="@drawable/ic_location_on_black_36dp"
+            android:title="@string/pendataan" />
+        <item
+            android:id="@+id/nav_pendata"
+            android:icon="@drawable/ic_account_circle_black_36dp"
+            android:title="@string/data_pendata" />
+        <item
+            android:id="@+id/nav_presentasi"
+            android:icon="@drawable/ic_assignment_black_36dp"
+            android:title="@string/presentasi" />
+        <item
+            android:id="@+id/nav_kurir"
+            android:icon="@drawable/ic_airport_shuttle_black_36dp"
+            android:title="@string/kurir" />
+        <item
+            android:id="@+id/nav_konsultan"
+            android:icon="@drawable/ic_account_box_black_36dp"
+            android:title="@string/konsultan" />
+        <item
+            android:id="@+id/nav_koordinator"
+            android:icon="@drawable/ic_assignment_ind_black_36dp"
+            android:title="@string/koordinator" />
+        <item
+            android:id="@+id/nav_ma"
+            android:icon="@drawable/ic_person_add_black_36dp"
+            android:title="@string/manager_area" />
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Setting" />
+    </group>
+
+    <item android:title="Logout">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_exit_to_app_black_36dp"
+                android:title="Logout" />
+        </menu>
+    </item>
+
+</menu>
