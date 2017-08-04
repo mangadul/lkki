@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:padding="5dp"
+    android:layout_height="wrap_content">
+
+    <Spinner
+        android:id="@+id/kurir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <RelativeLayout
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content">
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tgl_kirim"
+            android:inputType="none"
+            android:textIsSelectable="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tgl Kirim"
+            android:id="@+id/btn_tanggal"
+            android:layout_alignParentEnd="true"
+            android:layout_toRightOf="@+id/tgl_kirim"
+            android:layout_toEndOf="@+id/tgl_kirim" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content">
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/jam_kirim"
+            android:inputType="none"
+            android:textIsSelectable="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jam"
+            android:id="@+id/btn_jam"
+            android:layout_alignParentEnd="true"
+            android:layout_toRightOf="@+id/jam_kirim"
+            android:layout_toEndOf="@+id/jam_kirim" />
+    </RelativeLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/jml_order"
+        android:inputType="number"
+        android:hint="Jumlah Order Obat" />
+
+</LinearLayout>

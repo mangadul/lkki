@@ -33,6 +33,8 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -54,8 +56,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -68,6 +72,7 @@ import id.alphamedia.lkki.models.DataProspek;
 import id.alphamedia.lkki.models.DataProspekSerializer;
 import id.alphamedia.lkki.models.FotoProspek;
 import id.alphamedia.lkki.models.Konsultan;
+import id.alphamedia.lkki.models.Kurir;
 import id.alphamedia.lkki.tools.GlideToFile;
 import io.realm.Case;
 import io.realm.OrderedRealmCollection;
@@ -113,6 +118,9 @@ public class ListDataFragment extends Fragment {
 
     Uri imageUri;
     File tempfile;
+
+    int pilkurir;
+    String pilkonsul1, pilkonsul2;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -222,18 +230,31 @@ public class ListDataFragment extends Fragment {
                                     }
                                     break;
                                 case 1:
-                                    jadwalPenyuluhan(dp);
+                                    // lihat data
                                     break;
                                 case 2:
-                                    break; // lihatData
+                                    // edit data
+                                    break;
                                 case 3:
-                                    kirimDataServer(dp);
+                                    ruteAlamat(dp);
                                     break;
                                 case 4:
-                                    updateDataByKoor(dp.getId_prospek());
+                                    pilihKonsultan(dp);
                                     break;
                                 case 5:
+                                    pilihKurir(dp);
+                                    break;
+                                case 6:
+                                    kirimDataServer(dp);
+                                    break;
+                                case 7:
+                                    updateDataByKoor(dp.getId_prospek());
+                                    break;
+                                case 8:
                                     updateDataByMA(dp.getId_prospek());
+                                    break;
+                                case 9:
+                                    updateStatus(dp);
                                     break;
                             }
                         }
@@ -249,6 +270,36 @@ public class ListDataFragment extends Fragment {
 
         }
         return view;
+    }
+
+    private void ruteAlamat(final DataProspek dataProspek){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setTitle("Petunjuk lokasi ke "+dataProspek.getTempat());
+        alertDialogBuilder.setIcon(R.drawable.ic_location_on_black_36dp);
+        alertDialogBuilder.setMessage(R.string.pesan_arahgoogle);
+        alertDialogBuilder.setPositiveButton("Bantu Arahkan Lokasi", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                StringBuilder uri = new StringBuilder()
+                        .append("google.navigation:q=")
+                        .append(dataProspek.getLokasi_lat())
+                        .append(",")
+                        .append(dataProspek.getLokasi_long())
+                        .append("&mode=d&avoid=t");
+                Uri gmmIntentUri = Uri.parse(uri.toString());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                getActivity().startActivity(mapIntent);
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialogBuilder.create().show();
+
     }
 
     private void ambilFoto(final DataProspek dp) throws IOException {
@@ -285,7 +336,11 @@ public class ListDataFragment extends Fragment {
                         if(tmpfile.delete()) {
                             Log.i(TAG, "tempfile foto has been deleted.");
                         } else {
-                            getContext().deleteFile(tmpfile.getAbsolutePath());
+                            // getContext().deleteFile(tmpfile.getAbsolutePath());
+                            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                                    tempfile.getName());
+                            boolean deleted = file.delete();
+                            if(deleted) Log.i(TAG, "file "+ tempfile.getName() +" berhasil dihapus.");
                         }
                     }
                 }, 500);
@@ -295,57 +350,63 @@ public class ListDataFragment extends Fragment {
             e.printStackTrace();
         }
 
-        realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm bgRealm) {
-                Number maxValue = bgRealm.getDefaultInstance().where(FotoProspek.class).max("id");
-                int pk = ((maxValue == null) && (String.valueOf(maxValue).contains("null")) ) ? 1 : maxValue.intValue() + 1;
-                Log.i(TAG, "nilai uuid di ambilFoto: " + uuid);
-                FotoProspek fotoProspek = new FotoProspek();
-                fotoProspek.setId(pk);
-                fotoProspek.setUuid(uuid);
-                fotoProspek.setIs_dikirim(false);
-                fotoProspek.setUri_foto(currentDateandTime);
+        File f = getContext().getFileStreamPath(foto_lok);
+            if (f.length() == 0) {
+                // kalo kosong ga usah disimpan hapus aja
+                File file = new File(Config.FOTO_DIR, currentDateandTime + ".jpg");
+                boolean deleted = file.delete();
+                if(deleted) Log.i(TAG, "file "+foto_lok+" berhasil dihapus.");
+            } else {
+                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm bgRealm) {
+                        Number maxValue = bgRealm.getDefaultInstance().where(FotoProspek.class).max("id");
+                        int pk = ((maxValue == null) && (String.valueOf(maxValue).contains("null")) ) ? 1 : maxValue.intValue() + 1;
+                        Log.i(TAG, "nilai uuid di ambilFoto: " + uuid);
+                        FotoProspek fotoProspek = new FotoProspek();
+                        fotoProspek.setId(pk);
+                        fotoProspek.setUuid(uuid);
+                        fotoProspek.setIs_dikirim(false);
+                        fotoProspek.setUri_foto(foto_lok);
 
-                // insert update foto
-                realm.getDefaultInstance().insert(fotoProspek);
+                        // insert update foto
+                        realm.getDefaultInstance().insert(fotoProspek);
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        buatPesanJendela("Sukses", "Foto baru telah ditambahkan dengan nama file "+currentDateandTime);
+                    }
+                });
             }
-        }, new Realm.Transaction.OnSuccess() {
-            @Override
-            public void onSuccess() {
-                buatPesanJendela("Sukses", "Foto baru telah ditambahkan dengan nama file "+currentDateandTime);
-            }
-        });
-
 
     }
 
-    private void jadwalPenyuluhan(final DataProspek dp){
-
+    private void pilihKurir(DataProspek dataProspek)
+    {
         LayoutInflater li = getActivity().getLayoutInflater();
-        View promptsView = li.inflate(R.layout.pilih_penyuluh, null);
+        View promptsView = li.inflate(R.layout.pilih_kurir, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setView(promptsView);
-        alertDialogBuilder.setTitle(dp.getTempat());
-        alertDialogBuilder.setIcon(R.drawable.ic_account_box_black_36dp);
-        final Spinner konsul1 = (Spinner) promptsView.findViewById(R.id.konsultan1);
-        final Spinner konsul2 = (Spinner) promptsView.findViewById(R.id.konsultan2);
+        alertDialogBuilder.setTitle("Pilih Kurir :: " + dataProspek.getTempat());
+        alertDialogBuilder.setIcon(R.drawable.ic_airport_shuttle_black_36dp);
+        final Spinner spinkurir = (Spinner) promptsView.findViewById(R.id.kurir);
+        final TextView tvTanggal =(TextView) promptsView.findViewById(R.id.tgl_kirim);
+        final TextView tvOrder =(TextView) promptsView.findViewById(R.id.jml_order);
+        final Button btnTanggal =(Button) promptsView.findViewById(R.id.btn_tanggal);
 
-        final TextView tvTgl =(TextView) promptsView.findViewById(R.id.tgl_presentasi);
-        final TextView tvJam =(TextView) promptsView.findViewById(R.id.jam_presentasi);
+        final TextView tvJam =(TextView) promptsView.findViewById(R.id.jam_kirim);
+        final Button btnJam =(Button) promptsView.findViewById(R.id.btn_jam);
 
-        final Button btnDatePicker=(Button) promptsView.findViewById(R.id.btn_datep);
-        final Button btnTimePicker=(Button) promptsView.findViewById(R.id.btn_timep);
+        final long idp = dataProspek.getId_prospek();
 
-        final DataProspek dps = dp;
-        final long idp = dps.getId_prospek();
+        String tgl_kirim = (dataProspek.getTgl_dikirim()== null || String.valueOf(dataProspek.getTgl_dikirim()).matches("")) ? "" : String.valueOf(dataProspek.getTgl_dikirim());
+        int jml_order = (dataProspek.getJmlorder() <= 0 || String.valueOf(dataProspek.getJmlorder()).matches("")) ? 0 : dataProspek.getJmlorder();
 
-        String tgl_penyuluh = (dp.getTgl_penyuluhan()== null || dp.getTgl_penyuluhan().matches("")) ? "" : dp.getTgl_penyuluhan();
-        String jam_penyuluh =  (dp.getWaktu_penyuluhan()==null || dp.getWaktu_penyuluhan().matches("")) ? "" : dp.getWaktu_penyuluhan();
-        tvTgl.setText(tgl_penyuluh);
-        tvJam.setText(jam_penyuluh);
+        tvTanggal.setText(tgl_kirim);
+        tvOrder.setText(String.valueOf(jml_order));
 
-        btnDatePicker.setOnClickListener(new View.OnClickListener() {
+        btnTanggal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Calendar c = Calendar.getInstance();
@@ -365,15 +426,15 @@ public class ListDataFragment extends Fragment {
                                 DecimalFormat mFormat= new DecimalFormat("00");
                                 int bln = monthOfYear + 1;
                                 String bul = mFormat.format(Double.valueOf(bln));
-                                tvTgl.setText(mFormat.format(Double.valueOf(dayOfMonth)) + "-" + String.valueOf(bul) + "-" + year);
+                                tvTanggal.setText(year+ "-" +String.valueOf(bul) + "-"+ mFormat.format(Double.valueOf(dayOfMonth)));
                             }
                         }, mYear, mMonth, mDay);
-                datePickerDialog.setTitle("Tanggal Penyuluhan");
+                datePickerDialog.setTitle("Tanggal Pengiriman");
                 datePickerDialog.show();
             }
         });
 
-        btnTimePicker.setOnClickListener(new View.OnClickListener() {
+        btnJam.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Calendar c = Calendar.getInstance();
@@ -384,11 +445,178 @@ public class ListDataFragment extends Fragment {
                 mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        tvJam.setText( new DecimalFormat("00").format(Double.valueOf(selectedHour)) + ":" + new DecimalFormat("00").format(Double.valueOf(selectedMinute)));
+                        tvJam.setText( new DecimalFormat("00").format(Double.valueOf(selectedHour)) + ":" + new DecimalFormat("00").format(Double.valueOf(selectedMinute)) + ":00");
                     }
                 }, mHour, mMinute, true);
-                mTimePicker.setTitle("Jam Penyuluhan");
+                mTimePicker.setTitle("Jam Pengiriman");
                 mTimePicker.show();
+            }
+        });
+
+        RealmResults<Kurir> reskurir = realm.getDefaultInstance().where(Kurir.class).findAll();
+        List<Kurir> listkurir = realm.getDefaultInstance().copyFromRealm(reskurir);
+
+        SpinnerKurirAdapter adapterkurir = new SpinnerKurirAdapter(listkurir);
+        spinkurir.setAdapter(adapterkurir);
+        adapterkurir.notifyDataSetChanged();
+
+        spinkurir.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(final AdapterView<?> parent, View view, int position, final long id) {
+                Kurir kurir = (Kurir) parent.getSelectedItem();
+                setPilkurir(kurir.getId_kurir());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        alertDialogBuilder.setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "tanggal kirim: " + tvTanggal.getText().toString());
+                Log.i(TAG, "jam kirim: " + tvJam.getText().toString());
+                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm bgRealm) {
+                        int pilkurir = 0;
+                        pilkurir = getPilkurir();
+                        DataProspek dpss = bgRealm.getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
+                        if (!tvOrder.getText().toString().matches("")
+                                && !tvTanggal.getText().toString().matches("")) {
+                            dpss.setKurir(pilkurir);
+                            String tanggal_kirim = (tvTanggal.getText().toString().matches("")) ? "" : tvTanggal.getText().toString();
+                            String jam_kirim = (tvJam.getText().toString().matches("")) ? "00:00:00" : tvJam.getText().toString();
+                            String waktu = tanggal_kirim + " " + jam_kirim;
+                            Log.i(TAG, "Tanggal kirim: "+ waktu);
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            if(!tanggal_kirim.matches("")) {
+                                try {
+                                    String tgl = sdf.format(sdf.parse(waktu));
+                                    Date tgl_kurir = sdf.parse(tgl.toString());
+                                    dpss.setTgl_dikirim(tgl_kurir);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            dpss.setJmlorder(Integer.parseInt(tvOrder.getText().toString()));
+                        }
+                        realm.getDefaultInstance().insertOrUpdate(dpss);
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        buatPesanJendela("Sukses Update", "Data kurir berhasil diupdate");
+                    }
+                });
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alertDialogBuilder.create().show();
+    }
+
+    private void setPilkurir(int pilkurir){
+        this.pilkurir = pilkurir;
+    }
+
+    private int getPilkurir(){
+        return pilkurir;
+    }
+
+    private void setPilkonsul1(String pilkonsul1){
+        this.pilkonsul1 = pilkonsul1;
+    }
+
+    private String getPilkonsul1(){
+        return pilkonsul1;
+    }
+
+    private void setPilkonsul2(String pilkonsul2){
+        this.pilkonsul2 = pilkonsul2;
+    }
+
+    private String getPilkonsul2(){
+        return pilkonsul2;
+    }
+
+    private void pilihKonsultan(final DataProspek dp){
+
+        LayoutInflater li = getActivity().getLayoutInflater();
+        View promptsView = li.inflate(R.layout.pilih_penyuluh, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setView(promptsView);
+        alertDialogBuilder.setTitle("Pilih Konsultan :: " + dp.getTempat());
+        alertDialogBuilder.setIcon(R.drawable.ic_account_box_black_36dp);
+        final Spinner konsul1 = (Spinner) promptsView.findViewById(R.id.konsultan1);
+        final Spinner konsul2 = (Spinner) promptsView.findViewById(R.id.konsultan2);
+
+        final TextView tvTgl =(TextView) promptsView.findViewById(R.id.tgl_presentasi);
+        final TextView tvJam =(TextView) promptsView.findViewById(R.id.jam_presentasi);
+
+        final Button btnDatePicker=(Button) promptsView.findViewById(R.id.btn_datep);
+        final Button btnTimePicker=(Button) promptsView.findViewById(R.id.btn_timep);
+
+        final DataProspek dps = dp;
+        final long idp = dps.getId_prospek();
+
+        String tgl_penyuluh = (String.valueOf(dp.getTgl_penyuluhan()) == null || String.valueOf(dp.getTgl_penyuluhan()).matches("")) ? "" : String.valueOf(dp.getTgl_penyuluhan());
+        String jam_penyuluh =  (dp.getWaktu_penyuluhan()==null || dp.getWaktu_penyuluhan().matches("")) ? "" : dp.getWaktu_penyuluhan();
+        tvTgl.setText(tgl_penyuluh);
+        tvJam.setText(jam_penyuluh);
+
+        btnDatePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            final Calendar c = Calendar.getInstance();
+            int mYear = c.get(Calendar.YEAR);
+            int mMonth = c.get(Calendar.MONTH);
+            int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+            DecimalFormat mFormat= new DecimalFormat("00");
+            mFormat.format(Double.valueOf(mMonth));
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year,
+                                              int monthOfYear, int dayOfMonth) {
+
+                            DecimalFormat mFormat= new DecimalFormat("00");
+                            int bln = monthOfYear + 1;
+                            String bul = mFormat.format(Double.valueOf(bln));
+                            tvTgl.setText(year + "-" + String.valueOf(bul) + "-"+ mFormat.format(Double.valueOf(dayOfMonth)));
+                        }
+                    }, mYear, mMonth, mDay);
+            datePickerDialog.setTitle("Tanggal Penyuluhan");
+            datePickerDialog.show();
+            }
+        });
+
+        btnTimePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            final Calendar c = Calendar.getInstance();
+            int mHour = c.get(Calendar.HOUR_OF_DAY);
+            int mMinute = c.get(Calendar.MINUTE);
+
+            TimePickerDialog mTimePicker;
+            mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                    tvJam.setText( new DecimalFormat("00").format(Double.valueOf(selectedHour)) + ":" + new DecimalFormat("00").format(Double.valueOf(selectedMinute)) + ":00");
+                }
+            }, mHour, mMinute, true);
+            mTimePicker.setTitle("Jam Penyuluhan");
+            mTimePicker.show();
             }
         });
 
@@ -471,7 +699,9 @@ public class ListDataFragment extends Fragment {
                     public void execute(Realm bgRealm) {
                         DataProspek dpss = bgRealm.where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
                         if (!tvTgl.getText().toString().matches("") && !tvJam.getText().toString().matches("")) {
-                            dpss.setTgl_penyuluhan(tvTgl.getText().toString());
+                            String tanggal_penyuluhan = tvTgl.getText().toString() + " " + tvJam.getText().toString();
+                            // Commons.toDate(tvTgl.getText().toString())
+                            dpss.setTgl_penyuluhan(Commons.toDate(tanggal_penyuluhan));
                             dpss.setWaktu_penyuluhan(tvJam.getText().toString());
                         }
                         realm.getDefaultInstance().insertOrUpdate(dpss);
@@ -677,6 +907,72 @@ public class ListDataFragment extends Fragment {
 
     }
 
+    private void updateStatus(DataProspek dp){
+        LayoutInflater li = getActivity().getLayoutInflater();
+        View promptsView = li.inflate(R.layout.updatestatus, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+        String[] strings = new String [] {"Data tidak valid",
+                "Dalam Konfirmasi (on-progress)",
+                "Jadwal Penyuluhuan Terkonfirmasi (fix)",
+                "Sudah dilakukan Penyuluhan",
+                "Batal dilakukan penyuluhan (cancel)"
+            };
+
+            List<String> stringList = new ArrayList<String>(Arrays.asList(strings));
+
+        RadioGroup rg = (RadioGroup) promptsView.findViewById(R.id.pilihan_status);
+
+        for(int i=0;i<stringList.size();i++){
+            RadioButton rb = new RadioButton(getActivity());
+            rb.setText(stringList.get(i));
+            rg.addView(rb);
+        }
+
+        /*
+        alertDialogBuilder.setItems(pilihanmenu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        */
+
+        alertDialogBuilder.setView(promptsView);
+        alertDialogBuilder.setTitle("Update Status :: " + dp.getTempat());
+        alertDialogBuilder.setIcon(R.drawable.ic_assignment_black_36dp);
+        final long idp = dp.getId_prospek();
+        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, final int which) {
+                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm bgRealm) {
+                    DataProspek dps = bgRealm.getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
+                    if (dps != null) {
+                        dps.setStatus_prospek(which + 1);
+                    }
+                    bgRealm.getDefaultInstance().insertOrUpdate(dps);
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                    buatPesanJendela("Sukses", "Status berhasil diupdate");
+                    }
+                });
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alertDialogBuilder.create().show();
+    }
+
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -710,7 +1006,7 @@ public class ListDataFragment extends Fragment {
         SearchView  searchView = new SearchView(((MainActivity) getContext()).getSupportActionBar().getThemedContext());
         MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
         MenuItemCompat.setActionView(item, searchView);
-        searchView.setQueryHint("Tempat, Kontak");
+        searchView.setQueryHint("tempat, kontak, pendata, konsultan");
         searchView.requestFocus();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -769,12 +1065,60 @@ public class ListDataFragment extends Fragment {
         */
     }
 
+    private void sortirData(){
+        LayoutInflater li = getActivity().getLayoutInflater();
+        View promptsView = li.inflate(R.layout.updatestatus, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+        String[] strings = new String [] {"Tanggal Terakhir Pencatatan",
+                "Tanggal pencatatan berdasarkan periode",
+                "Jadwal Penyuluhan berdasarkan tanggal",
+                "Status Penyuluhan yang terkonfirmasi",
+                "Data yang sudah dilakukan penyuluhan",
+                "Data pencatatan saya"
+        };
+
+        List<String> stringList = new ArrayList<String>(Arrays.asList(strings));
+
+        RadioGroup rg = (RadioGroup) promptsView.findViewById(R.id.pilihan_status);
+
+        for(int i=0;i<stringList.size();i++){
+            RadioButton rb = new RadioButton(getActivity());
+            rb.setText(stringList.get(i));
+            rg.addView(rb);
+        }
+
+        alertDialogBuilder.setView(promptsView);
+        alertDialogBuilder.setTitle("Urutkan Data Pencatatan berdasarkan: ");
+        alertDialogBuilder.setIcon(R.drawable.ic_filter_list_black_36dp);
+        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, final int which) {
+
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alertDialogBuilder.create().show();
+
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
                 return true;
+            case R.id.filter:
+                sortirData();
+                return true;
+
             /*
             case R.id.action_start_delete_mode:
                 adapter.enableDeletionMode(true);
@@ -1051,6 +1395,62 @@ public class ListDataFragment extends Fragment {
             }
             text.setTextColor(Color.BLACK);
             text.setText(data.get(position).getNama_konsultan());
+            return text;
+        }
+    }
+
+
+    // spinner kurir adapter
+
+    private class SpinnerKurirAdapter extends BaseAdapter implements SpinnerAdapter {
+
+        /**
+         * The internal data (the ArrayList with the Objects).
+         */
+        private final List<Kurir> data;
+
+        public SpinnerKurirAdapter(List<Kurir> data){
+            this.data = data;
+        }
+
+        /**
+         * Returns the Size of the ArrayList
+         */
+        @Override
+        public int getCount() {
+            return data.size();
+        }
+
+        /**
+         * Returns one Element of the ArrayList
+         * at the specified position.
+         */
+        @Override
+        public Object getItem(int position) {
+            return data.get(position);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        /**
+         * Returns the View that is shown when a element was
+         * selected.
+         */
+        @Override
+        public View getView(int position, View recycle, ViewGroup parent) {
+            TextView text;
+            if (recycle != null){
+                text = (TextView) recycle;
+            } else {
+                text = (TextView) getActivity().getLayoutInflater().inflate(
+                        android.R.layout.simple_list_item_1, parent, false
+                );
+            }
+            text.setTextColor(Color.BLACK);
+            text.setText(data.get(position).getNama_kurir());
             return text;
         }
     }

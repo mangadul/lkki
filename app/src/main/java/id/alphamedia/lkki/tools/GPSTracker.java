@@ -1,4 +1,4 @@
-package id.alphamedia.lkki;
+package id.alphamedia.lkki.tools;
 
 import android.app.AlertDialog;
 import android.app.Service;

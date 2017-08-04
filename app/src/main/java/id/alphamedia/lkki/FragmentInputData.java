@@ -405,7 +405,7 @@ public class FragmentInputData extends Fragment implements LocationListener, Vie
                             DecimalFormat mFormat= new DecimalFormat("00");
                             int bln = monthOfYear + 1;
                             String bul = mFormat.format(Double.valueOf(bln));
-                            txtDate.setText(mFormat.format(Double.valueOf(dayOfMonth)) + "-" + String.valueOf(bul) + "-" + year);
+                            txtDate.setText(year +"-" + String.valueOf(bul) + "-" + mFormat.format(Double.valueOf(dayOfMonth)));
                         }
                     }, mYear, mMonth, mDay);
             datePickerDialog.setTitle("Tanggal Penyuluhan");
@@ -603,15 +603,6 @@ public class FragmentInputData extends Fragment implements LocationListener, Vie
 
     private void simpanData(View v){
 
-        /*
-        (1) berhasil disimpan dilokal,
-        (2) dikirim ke server,
-        (3) validasi koordinator,
-        (4) validasi MA,
-        (5) konfirmasi tanggal penyuluhan sudah fix
-        (6) cancel / batal dengan alasan tertentu
-         */
-
         DataProspek data = new DataProspek();
 
         Number maxValue = realm.where(DataProspek.class).max("id_prospek");
@@ -669,7 +660,7 @@ public class FragmentInputData extends Fragment implements LocationListener, Vie
             data.setNik_pencatat(param_nik);
             data.setNama_pencatat(param_nama);
             data.setImei(imei);
-            data.setTgl_catat(getDate());
+            data.setTgl_catat(Commons.toDate(getDate()));
             data.setIs_dikirim(false);
             data.setStatus_koor(false);
             data.setStatus_ma(false);
@@ -694,7 +685,7 @@ public class FragmentInputData extends Fragment implements LocationListener, Vie
             data.setLokasi_lat(lats);
             data.setLokasi_long(lngs);
             data.setStatus_prospek(1);
-            data.setTgl_penyuluhan(tgl_penyuluhans);
+            data.setTgl_penyuluhan(Commons.toDate(tgl_penyuluhans));
             data.setWaktu_penyuluhan(jam_penyuluhans);
             data.setDurasi(Integer.parseInt(durasis));
 

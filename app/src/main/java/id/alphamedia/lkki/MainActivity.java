@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -644,7 +645,7 @@ public class MainActivity extends AppCompatActivity
         String lat = data.getLokasi_lat();
         String lng = data.getLokasi_long();
         String catatan = data.getCatatan();
-        String tgl_penyuluhan = data.getTgl_penyuluhan();
+        Date tgl_penyuluhan = data.getTgl_penyuluhan();
         String jam_penyuluhan = data.getWaktu_penyuluhan();
         String durasi = Integer.toString(data.getDurasi());
 

@@ -191,19 +191,6 @@
         <activity
             android:name=".RealmData"
             android:label="@string/app_name"></activity>
-        <activity
-            android:name=".ItemDataListActivity"
-            android:label="@string/title_itemdata_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
-            android:name=".ItemDataDetailActivity"
-            android:label="@string/title_itemdata_detail"
-            android:parentActivityName=".ItemDataListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="id.alphamedia.lkki.ItemDataListActivity" />
-        </activity>
     </application>
 
 </manifest>

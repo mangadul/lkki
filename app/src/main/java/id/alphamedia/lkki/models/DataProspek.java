@@ -1,5 +1,7 @@
 package id.alphamedia.lkki.models;
 
+import java.util.Date;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
@@ -39,8 +41,8 @@ public class DataProspek extends RealmObject  {
     private String kata_kunci, provinsi, kota, kecamatan, desa, jabatan;
 
     // tanggal pencatatan
-    private String tgl_catat;
-    private String tgl_penyuluhan;
+    private Date tgl_catat;
+    private Date tgl_penyuluhan;
     private String waktu_penyuluhan;
     private int durasi;
 
@@ -49,7 +51,7 @@ public class DataProspek extends RealmObject  {
 
     // status data dikirim ke server
     private boolean is_dikirim;
-    private String tgl_dikirim;
+    private Date tgl_dikirim;
 
     private int kurir, jmlorder;
 
@@ -98,8 +100,8 @@ public class DataProspek extends RealmObject  {
     public void setDesa(String desa) { this.desa = desa; }
     public void setJabatan(String jabatan) { this.jabatan = jabatan; }
     public String getJabatan() { return jabatan; }
-    public String getTgl_penyuluhan(){ return tgl_penyuluhan; }
-    public void setTgl_penyuluhan(String tgl_penyuluhan) { this.tgl_penyuluhan = tgl_penyuluhan; }
+    public Date getTgl_penyuluhan(){ return tgl_penyuluhan; }
+    public void setTgl_penyuluhan(Date tgl_penyuluhan) { this.tgl_penyuluhan = tgl_penyuluhan; }
 
     public void setCatatan(String catatan_status) { this.catatan = catatan_status; }
     public String getCatatan(){ return catatan; }
@@ -107,8 +109,8 @@ public class DataProspek extends RealmObject  {
     public void setStatus_prospek(int status_prospek){ this.status_prospek = status_prospek; }
     public int getStatus_prospek() { return status_prospek; }
 
-    public void setTgl_catat(String tgl_catat) { this.tgl_catat = tgl_catat; }
-    public String getTgl_catat() { return tgl_catat; }
+    public void setTgl_catat(Date tgl_catat) { this.tgl_catat = tgl_catat; }
+    public Date getTgl_catat() { return tgl_catat; }
 
     public void setWaktu_penyuluhan(String waktu_penyuluhan){ this.waktu_penyuluhan = waktu_penyuluhan; }
     public String getWaktu_penyuluhan() { return waktu_penyuluhan; }
@@ -120,8 +122,8 @@ public class DataProspek extends RealmObject  {
     public boolean isIs_dikirim(){ return is_dikirim; }
     public boolean getIs_dikirim(){ return is_dikirim; }
 
-    public void setTgl_dikirim(String tgl_dikirim) { this.tgl_dikirim = tgl_dikirim; }
-    public String getTgl_dikirim(){ return tgl_dikirim; }
+    public void setTgl_dikirim(Date tgl_dikirim) { this.tgl_dikirim = tgl_dikirim; }
+    public Date getTgl_dikirim(){ return tgl_dikirim; }
 
     public void setStatus_koor(boolean status_koor){
         this.status_koor = status_koor;

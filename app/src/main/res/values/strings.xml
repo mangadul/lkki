@@ -107,5 +107,6 @@
     <string name="file_json_konsultan">konsultan.json</string>
     <string name="title_itemdata_list">ItemsPendataan</string>
     <string name="title_itemdata_detail">ItemData Detail</string>
+    <string name="pesan_arahgoogle">Anda akan diarahkan ke lokasi tujuan berdasarkan petunjuk google map, jangan lupa aktifkan GPS anda untuk mengetahui lokasi saat ini dan pastikan koneksi internet anda tetap terhubung.</string>
 
 </resources>

@@ -107,7 +107,7 @@ public class MyListDataRecyclerViewAdapter
             if(dp.getKonsultan1().matches("")) {
                 holder.konsultan.setTextColor(Color.RED);
             } else {
-                holder.konsultan.setTextColor(Color.BLUE);
+                holder.konsultan.setTextColor(Color.BLACK);
             }
 
             String kons1 = (konsul.getNama_konsultan().matches("")) ?  "<konsultan_blm_dipilih>" : konsul.getNama_konsultan();
@@ -119,25 +119,43 @@ public class MyListDataRecyclerViewAdapter
             holder.konsultan.setText(sbKon);
         }
 
+        String tjalan = (dp.getJalan() == null || dp.getJalan().matches("null") || dp.getJalan().matches("")) ? "<jln_kosong>": dp.getJalan();
         StringBuilder lokasi = new StringBuilder();
-        lokasi.append(dp.getJalan());
+        lokasi.append(tjalan);
 
+        String tdesa = "<desa_kosong>";
         StringBuilder desa = new StringBuilder();
-        desa.append(desa_kel.getName());
+        if(desa_kel != null) {
+            tdesa = (desa_kel.getName() == null || desa_kel.getName().matches("null") || desa_kel.getName().matches("")) ? "<desa_kosong>": desa_kel.getName();
+        }
+        desa.append(tdesa);
 
-
+        String tkec = "<kec_kosong>";
         StringBuilder kec = new StringBuilder();
-        kec.append(kecamatan.getName());
+        if(kecamatan != null) {
+            tkec = (kecamatan.getName() == null || kecamatan.getName().matches("null") || kecamatan.getName().matches("")) ? "<kec_kosong>": kecamatan.getName();
+        }
+        kec.append(tkec);
+
+        String tkab = "<kab_kosong>";
+        if(kab != null) {
+            tkab = (kab.getName() == null || kab.getName().matches("null") || kab.getName().matches("")) ? "<kab_kosong>": kab.getName();
+        }
+
+        String tprov = "<prov_kosong>";
+        if(provinsi != null) {
+            tprov = (provinsi.getNama_prov() == null || provinsi.getNama_prov().matches("null") || provinsi.getNama_prov().matches("")) ? "<prov_kosong>": kab.getName();
+        }
 
         StringBuilder kab_prov = new StringBuilder();
-        kab_prov.append(kab.getName())
+        kab_prov.append(tkab)
                 .append(", ")
-                .append(provinsi.getNama_prov());
+                .append(tprov);
 
         holder.mItem = getData().get(position); // mValues.get(position);
 
         String uid = dp.getId_prospek() + "/" +dp.getUuid();
-        holder.uuid.setText(uid);
+        holder.uuid.setText(uid.substring(0, 30));
         String nokantor = (dp.getNo_kantor() == null) ? "": " / " + dp.getNo_kantor();
 
         holder.tempat.setText(dp.getTempat());
@@ -156,7 +174,7 @@ public class MyListDataRecyclerViewAdapter
         holder.kecamatan.setText(kec);
 
         holder.kab_provinsi.setText(kab_prov);
-        holder.tgl_catat.setText(dp.getTgl_catat());
+        holder.tgl_catat.setText(String.valueOf(dp.getTgl_catat()));
 
         String is_online = (dp.isIs_dikirim()) ? "[online]" : "[offline]";
 
@@ -168,7 +186,7 @@ public class MyListDataRecyclerViewAdapter
             holder.is_online.setText(is_online);
         }
 
-        String tgl_presen = (dp.getTgl_penyuluhan() == null || dp.getTgl_penyuluhan().matches("")) ? "<tgl_penyuluhan_belum_disi>" : String.valueOf(dp.getTgl_penyuluhan());
+        String tgl_presen = (dp.getTgl_penyuluhan() == null || String.valueOf(dp.getTgl_penyuluhan()).matches("")) ? "<tgl_penyuluhan_belum_disi>" : String.valueOf(dp.getTgl_penyuluhan());
         String jam_presentasi = (dp.getWaktu_penyuluhan() == null || dp.getWaktu_penyuluhan().matches("")) ? "<jam_belum_disi>": dp.getWaktu_penyuluhan();
 
         StringBuilder presentasi = new StringBuilder()

@@ -1,11 +1,23 @@
 <resources>
     <string-array name="pilihanmenu">
         <item>Ambil Foto</item>
-        <item>Edit Jadwal Penyuluhan</item>
         <item>Lihat Data</item>
+        <item>Edit Data</item>
+        <item>Rute Alamat</item>
+        <item>Pilih Konsultan</item>
+        <item>Pilih Kurir</item>
         <item>Kirim Data ke Server</item>
         <item>Validasi Koordinator</item>
         <item>Validasi Manager Area</item>
+        <item>Update Status</item>
+    </string-array>
+
+    <string-array name="updatestatus">
+        <item>Data tidak valid</item>
+        <item>Dalam Konfirmasi (on-progress)</item>
+        <item>Jadwal Penyuluhuan Terkonfirmasi (fix)</item>
+        <item>Sudah dilakukan Penyuluhan</item>
+        <item>Batal dilakukan penyuluhan (cancel)</item>
     </string-array>
 
     <string-array name="menuDrawer">

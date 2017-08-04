@@ -1,4 +1,4 @@
-package id.alphamedia.lkki;
+package id.alphamedia.lkki.tools;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -21,6 +21,7 @@ import java.io.OutputStream;
  */
 
 class FileUtil {
+
     private static final int EOF = -1;
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
