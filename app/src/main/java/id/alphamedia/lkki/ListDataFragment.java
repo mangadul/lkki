@@ -108,6 +108,7 @@ import static id.alphamedia.lkki.Config.KODE_ROVINSI;
 import static id.alphamedia.lkki.Config.NAMA_PENCATAT;
 import static id.alphamedia.lkki.Config.NIK_PENCATAT;
 import static id.alphamedia.lkki.Config.UID;
+import static id.alphamedia.lkki.R.id.tgl_presentasi;
 import static io.realm.Realm.getDefaultInstance;
 
 
@@ -401,9 +402,9 @@ public class ListDataFragment extends Fragment  {
         // tgl update server
         if(dp.getTgl_dikirim() == null)
         {
-            head_tgl_update_server.setText("Tanggal Update server: Data Belum dikirim ke server");
+            head_tgl_update_server.setText("Data Belum dikirim ke server");
         } else {
-            head_tgl_update_server.setText("Tanggal Update server " + dp.getTgl_dikirim().toString());
+            head_tgl_update_server.setText(dp.getTgl_dikirim().toString());
         }
 
         // tanggal pengiriman kurir
@@ -411,34 +412,38 @@ public class ListDataFragment extends Fragment  {
             || dp.getKurir_tgl_kirim().matches("")
             || dp.getKurir_tgl_kirim().matches("null"))
         {
-            head_tgl_kirim.setText("Tanggal Pengiriman: Belum ditentukan");
+            head_tgl_kirim.setText("Belum ditentukan");
         } else {
-            head_tgl_kirim.setText("Tanggal Pengiriman " + dp.getKurir_tgl_kirim());
+            head_tgl_kirim.setText(dp.getKurir_tgl_kirim());
         }
 
         // tanggal penyuluhan
         if(dp.getTgl_penyuluhan() != null) {
             String tgl_presentasi = dp.getTgl_penyuluhan().toString().matches("")
                     || dp.getTgl_penyuluhan().toString().matches("null") ?
-                    "Tanggal penyuluhan: Belum ditentukan"
-                    : "Tanggal Penyuluhan: " + dp.getTgl_penyuluhan().toString();
+                    "Belum ditentukan"
+                    : dp.getTgl_penyuluhan().toString();
             head_tgl_presentasi.setText(tgl_presentasi);
+        } else {
+            head_tgl_presentasi.setText("Belum ditentukan");
         }
 
         // konsultan
         if(dp.getKonsultan1() == null && dp.getKonsultan1().matches("") && dp.getKonsultan1().matches("null")) {
-            head_konsultan.setText("Konsultan: Belum dipilih");
+            head_konsultan.setText("Belum dipilih");
         } else {
             Konsultan konsultan = realm.getDefaultInstance().where(Konsultan.class).equalTo("id_konsultan", Integer.parseInt(dp.getKonsultan1())).findFirst();
-            head_konsultan.setText("Konsultan: " + konsultan.getNama_konsultan());
+            if(konsultan != null) head_konsultan.setText(konsultan.getNama_konsultan());
+                else head_konsultan.setText("Belum dipilih");
         }
 
         // kurir
         if(dp.getKurir() == 0) {
-            head_konsultan.setText("Kurir: Belum dipilih");
+            head_kurir.setText("Belum dipilih");
         } else {
             Kurir kurir = realm.getDefaultInstance().where(Kurir.class).equalTo("id_kurir", dp.getKurir()).findFirst();
-            head_kurir.setText("Kurir: " + kurir.getNama_kurir());
+            if(kurir != null) head_kurir.setText(kurir.getNama_kurir());
+                else head_kurir.setText("Belum dipilih");
         }
 
         head_tgl_catat.setText(dp.getTgl_catat().toString());
@@ -467,7 +472,8 @@ public class ListDataFragment extends Fragment  {
             info_desa.setText("Desa <Belum dipilih>");
         } else {
             Desa desa = realm.getDefaultInstance().where(Desa.class).equalTo("id", Long.parseLong(dp.getDesa())).findFirst();
-            info_desa.setText("Desa " + desa.getName());
+            if(desa != null) info_desa.setText("Desa " + desa.getName());
+                else info_desa.setText("Desa <Belum dipilih>");
         }
 
         // kecamatan
@@ -478,7 +484,8 @@ public class ListDataFragment extends Fragment  {
             info_kecamatan.setText("Kecamatan <Belum dipilih>");
         } else {
             Kecamatan kecamatan = realm.getDefaultInstance().where(Kecamatan.class).equalTo("id", Integer.parseInt(dp.getKecamatan())).findFirst();
-            info_kecamatan.setText("Kecamatan " + kecamatan.getName());
+            if(kecamatan != null) info_kecamatan.setText("Kecamatan " + kecamatan.getName());
+                else info_kecamatan.setText("Kecamatan <Belum dipilih>");
         }
 
         // kabupaten
@@ -489,7 +496,8 @@ public class ListDataFragment extends Fragment  {
             info_kabupaten.setText("Kabupaten <Belum dipilih>");
         } else {
             Kabupaten kabupaten = realm.getDefaultInstance().where(Kabupaten.class).equalTo("id", Integer.parseInt(dp.getKota())).findFirst();
-            info_kabupaten.setText("Kabupaten " + kabupaten.getName());
+            if(kabupaten != null) info_kabupaten.setText("Kabupaten " + kabupaten.getName());
+                else info_kabupaten.setText("Kabupaten <Belum dipilih>");
         }
 
         // provinsi
@@ -500,7 +508,8 @@ public class ListDataFragment extends Fragment  {
             info_provinsi.setText("Provinsi <Belum dipilih>");
         } else {
             Provinsi provinsi = realm.getDefaultInstance().where(Provinsi.class).equalTo("id", Integer.parseInt(dp.getProvinsi())).findFirst();
-            info_provinsi.setText("Provinsi " + provinsi.getNama_prov());
+            if(provinsi != null) info_provinsi.setText("Provinsi " + provinsi.getNama_prov());
+                else info_provinsi.setText("Provinsi <Belum dipilih>");
         }
 
         Geocoder coder = new Geocoder(getContext(), Locale.getDefault());
@@ -962,7 +971,7 @@ public class ListDataFragment extends Fragment  {
         final Spinner konsul1 = (Spinner) promptsView.findViewById(R.id.konsultan1);
         final Spinner konsul2 = (Spinner) promptsView.findViewById(R.id.konsultan2);
 
-        final TextView tvTgl =(TextView) promptsView.findViewById(R.id.tgl_presentasi);
+        final TextView tvTgl =(TextView) promptsView.findViewById(tgl_presentasi);
         final TextView tvJam =(TextView) promptsView.findViewById(R.id.jam_presentasi);
 
         final Button btnDatePicker=(Button) promptsView.findViewById(R.id.btn_datep);

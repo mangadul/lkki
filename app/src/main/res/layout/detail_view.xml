@@ -73,8 +73,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#37474F"
+                android:textStyle="bold"
+                android:text="Pendata"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
                 android:id="@+id/head_pendata"
                 android:text="Nama Pendata"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:textStyle="bold"
+                android:text="Tanggal Pencatatan"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -87,8 +101,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#37474F"
+                android:textStyle="bold"
+                android:text="Terakhir Update ke Server"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
                 android:id="@+id/head_tgl_update_server"
                 android:text="17 Agustus 2017 Jam 00:00:00"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:textStyle="bold"
+                android:text="Konsultan"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -101,7 +129,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#37474F"
-                android:text="Tanggal Presentasi"/>
+                android:textStyle="bold"
+                android:text="Tanggal Penyuluhan"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -114,6 +143,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#37474F"
+                android:textStyle="bold"
+                android:text="Kurir"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
                 android:id="@+id/head_kurir"
                 android:text="Nama Kurir"/>
 
@@ -121,7 +157,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#37474F"
-                android:text="Tanggal Kirim"/>
+                android:textStyle="bold"
+                android:text="Tanggal Pengiriman Obat"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -129,6 +166,13 @@
                 android:textColor="#37474F"
                 android:id="@+id/head_tgl_kirim"
                 android:text="12 Agustus 2017"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:textStyle="bold"
+                android:text="Catatan"/>
 
             <TextView
                 android:layout_width="wrap_content"
