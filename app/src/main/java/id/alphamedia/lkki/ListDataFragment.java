@@ -402,7 +402,7 @@ public class ListDataFragment extends Fragment  {
         // tgl update server
         if(dp.getTgl_dikirim() == null)
         {
-            head_tgl_update_server.setText("Data Belum dikirim ke server");
+            head_tgl_update_server.setText("Refresh utk melihat tgl update server");
         } else {
             head_tgl_update_server.setText(dp.getTgl_dikirim().toString());
         }
@@ -429,7 +429,9 @@ public class ListDataFragment extends Fragment  {
         }
 
         // konsultan
-        if(dp.getKonsultan1() == null && dp.getKonsultan1().matches("") && dp.getKonsultan1().matches("null")) {
+        if(dp.getKonsultan1() == null
+                || dp.getKonsultan1().matches("")
+                || dp.getKonsultan1().matches("null")) {
             head_konsultan.setText("Belum dipilih");
         } else {
             Konsultan konsultan = realm.getDefaultInstance().where(Konsultan.class).equalTo("id_konsultan", Integer.parseInt(dp.getKonsultan1())).findFirst();
@@ -634,10 +636,27 @@ public class ListDataFragment extends Fragment  {
             }
         }).execute();
 
-        String jalan = dp.getJalan().matches("") || dp.getJalan().matches("null") || dp.getJalan() == null ? "" : dp.getJalan();
-        String rt = dp.getRt().matches("") || dp.getRt().matches("null") || dp.getRt() == null ? "" : dp.getRt();
-        String rw = dp.getRw().matches("") || dp.getRw().matches("null") || dp.getRw() == null ? "" : dp.getRw();
-        String jabatan = dp.getJabatan().matches("") || dp.getJabatan().matches("null") || dp.getJabatan() == null ? "" : dp.getJabatan();
+        String jalan = "<Alamat jalan belum diisi>";
+        if(dp.getJalan() != null)
+        {
+            jalan = dp.getJalan().matches("") || dp.getJalan().matches("null") ? "<Alamat jalan belum diisi>" : dp.getJalan();
+        }
+
+        String rt = "<RT belum diisi>";
+        if(dp.getRt() != null) {
+            rt = dp.getRt().matches("") || dp.getRt().matches("null") ? "<RT belum diisi>" : dp.getRt();
+        }
+
+        String rw = "<RW belum diisi>";
+        if(dp.getRw() != null)
+        {
+            rw = dp.getRw().matches("") || dp.getRw().matches("null")  ? "<RW belum diisi>" : dp.getRw();
+        }
+
+        String jabatan = "<Jabatan belum diisi>";
+        if(dp.getJabatan() != null) {
+            jabatan = dp.getJabatan().matches("") || dp.getJabatan().matches("null") ? "<Jabatan belum diisi>" : dp.getJabatan();
+        }
 
         info_nama_tempat.setText(dp.getTempat());
         info_nama_kontak.setText(dp.getNama());
