@@ -9,19 +9,27 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +41,8 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -47,14 +57,17 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,17 +76,25 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import id.alphamedia.lkki.adapter.DividerItemDecoration;
 import id.alphamedia.lkki.adapter.ItemClickSupport;
 import id.alphamedia.lkki.adapter.MyListDataRecyclerViewAdapter;
+import id.alphamedia.lkki.models.Constants;
 import id.alphamedia.lkki.models.DataHelper;
 import id.alphamedia.lkki.models.DataProspek;
 import id.alphamedia.lkki.models.DataProspekSerializer;
+import id.alphamedia.lkki.models.Desa;
+import id.alphamedia.lkki.models.FotoPresentasi;
 import id.alphamedia.lkki.models.FotoProspek;
+import id.alphamedia.lkki.models.Kabupaten;
+import id.alphamedia.lkki.models.Kecamatan;
 import id.alphamedia.lkki.models.Konsultan;
 import id.alphamedia.lkki.models.Kurir;
+import id.alphamedia.lkki.models.Provinsi;
 import id.alphamedia.lkki.tools.GlideToFile;
+import id.alphamedia.lkki.tools.UploadFile;
 import io.realm.Case;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
@@ -82,6 +103,12 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 
 import static id.alphamedia.lkki.BaseFragment.ARGS_INSTANCE;
+import static id.alphamedia.lkki.Config.KODE_KABUPATEN;
+import static id.alphamedia.lkki.Config.KODE_ROVINSI;
+import static id.alphamedia.lkki.Config.NAMA_PENCATAT;
+import static id.alphamedia.lkki.Config.NIK_PENCATAT;
+import static id.alphamedia.lkki.Config.UID;
+import static io.realm.Realm.getDefaultInstance;
 
 
 /**
@@ -90,7 +117,7 @@ import static id.alphamedia.lkki.BaseFragment.ARGS_INSTANCE;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class ListDataFragment extends Fragment {
+public class ListDataFragment extends Fragment  {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -122,6 +149,11 @@ public class ListDataFragment extends Fragment {
     int pilkurir;
     String pilkonsul1, pilkonsul2;
 
+    private int uid, tipe_user;
+    private String param_nama, param_nik, param_kota, param_prov;
+
+    SwipeRefreshLayout swipeLayout;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -144,7 +176,18 @@ public class ListDataFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        realm = Realm.getDefaultInstance();
+        realm = getDefaultInstance();
+
+        Bundle args = this.getArguments();
+        if (args != null) {
+            uid = args.getInt(UID);
+            tipe_user = args.getInt(Config.TIPE_USER);
+            param_nama = args.getString(NAMA_PENCATAT);
+            param_nik = args.getString(NIK_PENCATAT);
+            param_kota = args.getString(KODE_KABUPATEN);
+            param_prov = args.getString(KODE_ROVINSI);
+        }
+
         OrderedRealmCollection<DataProspek> orc = getAllData();
         setDataProspek(orc);
         adapter = new MyListDataRecyclerViewAdapter(getContext(), realm, orc);
@@ -156,6 +199,7 @@ public class ListDataFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_listdata_list, container, false);
 
         // Set the adapter
@@ -165,13 +209,25 @@ public class ListDataFragment extends Fragment {
 
             final LinearLayoutManager mLayoutManager;
             mLayoutManager = new LinearLayoutManager(context);
+            mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             recyclerView.setLayoutManager(mLayoutManager);
 
             RealmResults<Konsultan> konsultanRealmResults =  realm.where(Konsultan.class).findAll();
+            RealmResults<Kurir> kurirRealmResults =  realm.where(Kurir.class).findAll();
+
             if(konsultanRealmResults.size() == 0)
             {
                 try {
                     loadKonsultanFromStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(kurirRealmResults.size() == 0)
+            {
+                try {
+                    loadKurirFromStream();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -230,7 +286,20 @@ public class ListDataFragment extends Fragment {
                                     }
                                     break;
                                 case 1:
-                                    // lihat data
+                                    if(isNetworkConnected()) {
+                                        lihatData(dp);
+                                    } else {
+                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                        alertDialogBuilder.setTitle("Kesalahan Jaringan");
+                                        alertDialogBuilder.setMessage("Silahkan aktifkan koneksi internet terlebih dahulu untuk melihat detail Data ini!");
+                                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                        alertDialogBuilder.create().show();
+                                    }
                                     break;
                                 case 2:
                                     // edit data
@@ -239,22 +308,55 @@ public class ListDataFragment extends Fragment {
                                     ruteAlamat(dp);
                                     break;
                                 case 4:
-                                    pilihKonsultan(dp);
+                                    if(tipe_user == 4){
+                                        pilihKonsultan(dp);
+                                    } else {
+                                        buatPesanJendela("Error", "Anda tidak berhak mengakses menu ini, hanya untuk koordinator.");
+                                    }
                                     break;
                                 case 5:
-                                    pilihKurir(dp);
+                                    if(tipe_user == 4){
+                                        pilihKurir(dp);
+                                    } else {
+                                        buatPesanJendela("Error", "Anda tidak berhak mengakses menu ini, hanya untuk koordinator.");
+                                    }
                                     break;
                                 case 6:
-                                    kirimDataServer(dp);
+                                    if(isNetworkConnected()) {
+                                        kirimDataServer(dp);
+                                    } else {
+                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                        alertDialogBuilder.setTitle("Kesalahan Jaringan");
+                                        alertDialogBuilder.setMessage("Silahkan aktifkan koneksi internet terlebih dahulu untuk mengirim data ke server!");
+                                        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                        alertDialogBuilder.create().show();
+                                    }
                                     break;
                                 case 7:
-                                    updateDataByKoor(dp.getId_prospek());
+                                    if(tipe_user == 4){
+                                        updateDataByKoor(dp.getId_prospek());
+                                    } else {
+                                        buatPesanJendela("Error", "Anda tidak berhak mengakses menu ini, hanya untuk koordinator");
+                                    }
                                     break;
                                 case 8:
-                                    updateDataByMA(dp.getId_prospek());
+                                    if(tipe_user == 5){
+                                        updateDataByMA(dp.getId_prospek());
+                                    } else {
+                                        buatPesanJendela("Error", "Anda tidak berhak mengakses menu ini, hanya untuk Manager Area (MA).");
+                                    }
                                     break;
                                 case 9:
-                                    updateStatus(dp);
+                                    if(tipe_user == 4 || tipe_user == 2){
+                                        updateStatus(dp);
+                                    } else {
+                                        buatPesanJendela("Error", "Anda tidak berhak mengakses menu ini, hanya untuk Konsultan dan Koordinator");
+                                    }
                                     break;
                             }
                         }
@@ -270,6 +372,273 @@ public class ListDataFragment extends Fragment {
 
         }
         return view;
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+    }
+
+    private void lihatData(DataProspek dp) {
+        final View promptsView;
+        LayoutInflater li = getActivity().getLayoutInflater();
+        promptsView = li.inflate(R.layout.detail_view, null);
+
+        ImageView iv_peta = (ImageView) promptsView.findViewById(R.id.peta_lokasi);
+
+        // head
+        TextView head_tgl_presentasi = (TextView) promptsView.findViewById(R.id.head_tgl_presentasi);
+        TextView head_catatan = (TextView) promptsView.findViewById(R.id.head_catatan);
+        TextView head_konsultan = (TextView) promptsView.findViewById(R.id.head_konsultan);
+        TextView head_kurir = (TextView) promptsView.findViewById(R.id.head_kurir);
+        TextView head_nama_tempat = (TextView) promptsView.findViewById(R.id.head_nama_tempat);
+        TextView head_pendata = (TextView) promptsView.findViewById(R.id.head_pendata);
+        TextView head_tgl_catat = (TextView) promptsView.findViewById(R.id.head_tgl_catat);
+        TextView head_tgl_kirim = (TextView) promptsView.findViewById(R.id.head_tgl_kirim);
+        TextView head_tgl_update_server = (TextView) promptsView.findViewById(R.id.head_tgl_update_server);
+
+
+        // tgl update server
+        if(dp.getTgl_dikirim() == null)
+        {
+            head_tgl_update_server.setText("Tanggal Update server: Data Belum dikirim ke server");
+        } else {
+            head_tgl_update_server.setText("Tanggal Update server " + dp.getTgl_dikirim().toString());
+        }
+
+        // tanggal pengiriman kurir
+        if(dp.getKurir_tgl_kirim() == null
+            || dp.getKurir_tgl_kirim().matches("")
+            || dp.getKurir_tgl_kirim().matches("null"))
+        {
+            head_tgl_kirim.setText("Tanggal Pengiriman: Belum ditentukan");
+        } else {
+            head_tgl_kirim.setText("Tanggal Pengiriman " + dp.getKurir_tgl_kirim());
+        }
+
+        // tanggal penyuluhan
+        if(dp.getTgl_penyuluhan() != null) {
+            String tgl_presentasi = dp.getTgl_penyuluhan().toString().matches("")
+                    || dp.getTgl_penyuluhan().toString().matches("null") ?
+                    "Tanggal penyuluhan: Belum ditentukan"
+                    : "Tanggal Penyuluhan: " + dp.getTgl_penyuluhan().toString();
+            head_tgl_presentasi.setText(tgl_presentasi);
+        }
+
+        // konsultan
+        if(dp.getKonsultan1() == null && dp.getKonsultan1().matches("") && dp.getKonsultan1().matches("null")) {
+            head_konsultan.setText("Konsultan: Belum dipilih");
+        } else {
+            Konsultan konsultan = realm.getDefaultInstance().where(Konsultan.class).equalTo("id_konsultan", Integer.parseInt(dp.getKonsultan1())).findFirst();
+            head_konsultan.setText("Konsultan: " + konsultan.getNama_konsultan());
+        }
+
+        // kurir
+        if(dp.getKurir() == 0) {
+            head_konsultan.setText("Kurir: Belum dipilih");
+        } else {
+            Kurir kurir = realm.getDefaultInstance().where(Kurir.class).equalTo("id_kurir", dp.getKurir()).findFirst();
+            head_kurir.setText("Kurir: " + kurir.getNama_kurir());
+        }
+
+        head_tgl_catat.setText(dp.getTgl_catat().toString());
+        head_pendata.setText(dp.getNama_pencatat());
+        head_nama_tempat.setText(dp.getTempat());
+        head_catatan.setText(dp.getCatatan());
+
+        // isi
+        TextView info_nama_tempat = (TextView) promptsView.findViewById(R.id.info_nama_tempat);
+        TextView info_alamat = (TextView) promptsView.findViewById(R.id.info_alamat);
+        TextView info_rt_rw = (TextView) promptsView.findViewById(R.id.info_rt_rw);
+        TextView info_desa = (TextView) promptsView.findViewById(R.id.info_desa);
+        TextView info_kecamatan = (TextView) promptsView.findViewById(R.id.info_kecamatan);
+        TextView info_kabupaten = (TextView) promptsView.findViewById(R.id.info_kabupaten);
+        TextView info_provinsi = (TextView) promptsView.findViewById(R.id.info_provinsi);
+        TextView info_nama_kontak = (TextView) promptsView.findViewById(R.id.info_nama_kontak);
+        TextView info_kontak_no_hp = (TextView) promptsView.findViewById(R.id.info_kontak_no_hp);
+        TextView info_jabatan = (TextView) promptsView.findViewById(R.id.info_jabatan);
+        TextView info_koordinat = (TextView) promptsView.findViewById(R.id.info_koordinat);
+        TextView info_alamat_google = (TextView) promptsView.findViewById(R.id.info_alamat_google);
+
+        // desa
+        if(dp.getDesa() == null || dp.getDesa().matches("")
+                || dp.getDesa().matches("null")
+                || dp.getDesa().matches("0")){
+            info_desa.setText("Desa <Belum dipilih>");
+        } else {
+            Desa desa = realm.getDefaultInstance().where(Desa.class).equalTo("id", Long.parseLong(dp.getDesa())).findFirst();
+            info_desa.setText("Desa " + desa.getName());
+        }
+
+        // kecamatan
+        if(dp.getKecamatan() == null
+                || dp.getKecamatan().matches("")
+                || dp.getKecamatan().matches("null")
+                || dp.getKecamatan().matches("0")){
+            info_kecamatan.setText("Kecamatan <Belum dipilih>");
+        } else {
+            Kecamatan kecamatan = realm.getDefaultInstance().where(Kecamatan.class).equalTo("id", Integer.parseInt(dp.getKecamatan())).findFirst();
+            info_kecamatan.setText("Kecamatan " + kecamatan.getName());
+        }
+
+        // kabupaten
+        if(dp.getKota() == null
+                || dp.getKota().matches("")
+                || dp.getKota().matches("null")
+                || dp.getKota().matches("0")){
+            info_kabupaten.setText("Kabupaten <Belum dipilih>");
+        } else {
+            Kabupaten kabupaten = realm.getDefaultInstance().where(Kabupaten.class).equalTo("id", Integer.parseInt(dp.getKota())).findFirst();
+            info_kabupaten.setText("Kabupaten " + kabupaten.getName());
+        }
+
+        // provinsi
+        if(dp.getProvinsi() == null
+                || dp.getProvinsi().matches("")
+                || dp.getProvinsi().matches("null")
+                || dp.getProvinsi().matches("0")){
+            info_provinsi.setText("Provinsi <Belum dipilih>");
+        } else {
+            Provinsi provinsi = realm.getDefaultInstance().where(Provinsi.class).equalTo("id", Integer.parseInt(dp.getProvinsi())).findFirst();
+            info_provinsi.setText("Provinsi " + provinsi.getNama_prov());
+        }
+
+        Geocoder coder = new Geocoder(getContext(), Locale.getDefault());
+        List<Address> results;
+        try {
+            results = coder.getFromLocation(Double.parseDouble(dp.getLokasi_lat()), Double.parseDouble(dp.getLokasi_long()), 1);
+            if(results != null){
+                Address location = results.get(0);
+                ArrayList<String> addressFragments = new ArrayList<String>();
+                for(int i = 0; i <= location.getMaxAddressLineIndex(); i++) {
+                    addressFragments.add(location.getAddressLine(i));
+                }
+                // System.getProperty("line.separator")
+                String alamatg = TextUtils.join(", ", addressFragments);
+                StringBuilder sbalamat = new StringBuilder().append(alamatg);
+                info_alamat_google.setText(sbalamat.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        StringBuilder petaStatis = new StringBuilder()
+                .append("https://maps.googleapis.com/maps/api/staticmap?center=")
+                .append(dp.getLokasi_lat()).append(",").append(dp.getLokasi_long())
+                .append("&zoom=16")
+                .append("&size=400x400")
+                .append("&maptype=roadmap")
+                .append("&markers=color:red%7Clabel:AA%7C")
+                .append(dp.getLokasi_lat()).append(",").append(dp.getLokasi_long())
+                .append("&key=").append(Constants.GMAP_STATIC_KEY);
+
+        Glide
+            .with(getContext())
+            .load(petaStatis.toString()).override(300,300).centerCrop()
+            .placeholder(R.drawable.ic_person_white)
+            .into(iv_peta);
+
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setView(promptsView);
+        // alertDialogBuilder.setTitle(dp.getTempat());
+
+        /*
+        alertDialogBuilder.setNegativeButton("Tutup", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        */
+
+        // foto pendataan
+        new AmbilFotoProspek(getContext(), dp.getUuid(), "p", Config.GET_FOTO, new AmbilFotoProspek.AsyncPostResponse() {
+            @Override
+            public void processFinish(String output) {
+                if(output != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(output);
+                        if(jsonObject.has("success") && jsonObject.getBoolean("success")) {
+                            JSONArray data = jsonObject.getJSONArray("data");
+                            LinearLayout layout = (LinearLayout) promptsView.findViewById(R.id.layout_foto_pendataan);
+                            for(int i=0; i < data.length(); i++){
+                                JSONObject fotop = data.getJSONObject(i);
+                                String url_foto = fotop.getString("url_foto");
+                                ImageView image = new ImageView(getContext());
+                                image.setLayoutParams(new android.view.ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                                // image.setMaxHeight(600);
+                                // image.setMaxWidth(600);
+                                image.setId(i);
+                                image.setPadding(0,2,0,0);
+                                image.setImageResource(R.drawable.ic_account_circle_white_48dp);
+                                image.setVisibility(View.VISIBLE);
+                                layout.addView(image);
+                                Glide
+                                    .with(getContext())
+                                    .load(url_foto).override(600,600).centerCrop()
+                                    .placeholder(R.drawable.ic_person_white)
+                                    .into(image);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).execute();
+
+        // foto presentasi
+        new AmbilFotoProspek(getContext(), dp.getUuid(), "k", Config.GET_FOTO, new AmbilFotoProspek.AsyncPostResponse() {
+            @Override
+            public void processFinish(String output) {
+                if(output != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(output);
+                        if(jsonObject.has("success") && jsonObject.getBoolean("success")) {
+                            JSONArray data = jsonObject.getJSONArray("data");
+                            LinearLayout layout = (LinearLayout) promptsView.findViewById(R.id.layout_foto_presentasi);
+                            for(int i=0; i < data.length(); i++){
+                                JSONObject fotop = data.getJSONObject(i);
+                                String url_foto = fotop.getString("url_foto");
+                                ImageView image = new ImageView(getContext());
+                                image.setLayoutParams(new android.view.ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                                image.setPadding(0,2,0,0);
+                                image.setImageResource(R.drawable.ic_account_circle_white_48dp);
+                                image.setVisibility(View.VISIBLE);
+                                layout.addView(image);
+                                Glide
+                                    .with(getContext())
+                                    .load(url_foto).override(600,600).centerCrop()
+                                    .placeholder(R.drawable.ic_person_white)
+                                    .into(image);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).execute();
+
+        String jalan = dp.getJalan().matches("") || dp.getJalan().matches("null") || dp.getJalan() == null ? "" : dp.getJalan();
+        String rt = dp.getRt().matches("") || dp.getRt().matches("null") || dp.getRt() == null ? "" : dp.getRt();
+        String rw = dp.getRw().matches("") || dp.getRw().matches("null") || dp.getRw() == null ? "" : dp.getRw();
+        String jabatan = dp.getJabatan().matches("") || dp.getJabatan().matches("null") || dp.getJabatan() == null ? "" : dp.getJabatan();
+
+        info_nama_tempat.setText(dp.getTempat());
+        info_nama_kontak.setText(dp.getNama());
+        info_kontak_no_hp.setText(dp.getNo_hp());
+        info_jabatan.setText(jabatan);
+        info_alamat.setText(jalan);
+        info_rt_rw.setText("Rt. " + rt + "  Rw. " + rw);
+        info_koordinat.setText(dp.getLokasi_lat() +", "+dp.getLokasi_long());
+
+        alertDialogBuilder.create().show();
     }
 
     private void ruteAlamat(final DataProspek dataProspek){
@@ -310,6 +679,11 @@ public class ListDataFragment extends Fragment {
         tempfile = createMediaFile(MODE_FOTO);
         final String foto_lok = photo.getAbsolutePath();
         final String temp_foto = tempfile.getAbsolutePath();
+
+        final int usid = uid;
+        final int guid = dp.getUid();
+        final String konsul = dp.getKonsultan1();
+
         final String uuid = dp.getUuid();
         final File tmpfile = tempfile;
         try {
@@ -350,35 +724,64 @@ public class ListDataFragment extends Fragment {
             e.printStackTrace();
         }
 
-        File f = getContext().getFileStreamPath(foto_lok);
-            if (f.length() == 0) {
-                // kalo kosong ga usah disimpan hapus aja
-                File file = new File(Config.FOTO_DIR, currentDateandTime + ".jpg");
-                boolean deleted = file.delete();
-                if(deleted) Log.i(TAG, "file "+foto_lok+" berhasil dihapus.");
-            } else {
-                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm bgRealm) {
-                        Number maxValue = bgRealm.getDefaultInstance().where(FotoProspek.class).max("id");
-                        int pk = ((maxValue == null) && (String.valueOf(maxValue).contains("null")) ) ? 1 : maxValue.intValue() + 1;
-                        Log.i(TAG, "nilai uuid di ambilFoto: " + uuid);
-                        FotoProspek fotoProspek = new FotoProspek();
-                        fotoProspek.setId(pk);
-                        fotoProspek.setUuid(uuid);
-                        fotoProspek.setIs_dikirim(false);
-                        fotoProspek.setUri_foto(foto_lok);
-
-                        // insert update foto
-                        realm.getDefaultInstance().insert(fotoProspek);
-                    }
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-                        buatPesanJendela("Sukses", "Foto baru telah ditambahkan dengan nama file "+currentDateandTime);
-                    }
-                });
+        getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm bgRealm) {
+                switch(tipe_user){
+                    case 8:
+                    case 7:
+                    case 6:
+                    case 5:
+                    case 4:
+                    case 3:
+                    case 1:
+                        if(usid > guid) {
+                            buatPesanJendela("Error", "Anda tidak berhak mengakses data ini, anda bukan penginput (pendata) untuk data ini.");
+                        } else {
+                            Number maxValue = getDefaultInstance().where(FotoProspek.class).max("id");
+                            int pk = ((maxValue == null) && (String.valueOf(maxValue).contains("null")) ) ? 1 : maxValue.intValue() + 1;
+                            FotoProspek fotoProspek = new FotoProspek();
+                            fotoProspek.setId(pk);
+                            fotoProspek.setUuid(uuid);
+                            fotoProspek.setIs_dikirim(false);
+                            fotoProspek.setFilename(currentDateandTime);
+                            fotoProspek.setUri_foto(foto_lok);
+                            getDefaultInstance().insert(fotoProspek);
+                        }
+                        break;
+                    case 2: // konsultan
+                        if(konsul.matches("") || konsul.matches("null") || konsul == null) {
+                            buatPesanJendela("Error", "Silahkan pilih konsultan terlebih dahulu.");
+                        } else {
+                            if(usid > Integer.parseInt(konsul))
+                            {
+                                buatPesanJendela("Error", "Anda bukan Konsultan yang telah ditetapkan untuk mengakses data ini.");
+                            } else {
+                                Number maxid = getDefaultInstance().where(FotoPresentasi.class).max("id");
+                                int ppk = ((maxid == null) && (String.valueOf(maxid).contains("null")) ) ? 1 : maxid.intValue() + 1;
+                                FotoPresentasi fotoPresentasi = new FotoPresentasi();
+                                fotoPresentasi.setId(ppk);
+                                fotoPresentasi.setUuid(uuid);
+                                fotoPresentasi.setIs_dikirim(false);
+                                fotoPresentasi.setFilename(currentDateandTime);
+                                fotoPresentasi.setUri_foto(foto_lok);
+                                getDefaultInstance().insert(fotoPresentasi);
+                            }
+                        }
+                        break;
+                }
             }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                buatPesanJendela("Sukses", "Foto baru telah ditambahkan dengan nama file "+currentDateandTime);
+            }
+        });
+
+        // File f = getContext().getFileStreamPath(foto_lok);
+        File file = new File(Config.FOTO_DIR, currentDateandTime + ".jpg");
+        boolean deleted = file.delete();
+        if(deleted) Log.i(TAG, "file "+foto_lok+" berhasil dihapus.");
 
     }
 
@@ -453,8 +856,8 @@ public class ListDataFragment extends Fragment {
             }
         });
 
-        RealmResults<Kurir> reskurir = realm.getDefaultInstance().where(Kurir.class).findAll();
-        List<Kurir> listkurir = realm.getDefaultInstance().copyFromRealm(reskurir);
+        RealmResults<Kurir> reskurir = getDefaultInstance().where(Kurir.class).findAll();
+        List<Kurir> listkurir = getDefaultInstance().copyFromRealm(reskurir);
 
         SpinnerKurirAdapter adapterkurir = new SpinnerKurirAdapter(listkurir);
         spinkurir.setAdapter(adapterkurir);
@@ -478,12 +881,12 @@ public class ListDataFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(TAG, "tanggal kirim: " + tvTanggal.getText().toString());
                 Log.i(TAG, "jam kirim: " + tvJam.getText().toString());
-                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm bgRealm) {
                         int pilkurir = 0;
                         pilkurir = getPilkurir();
-                        DataProspek dpss = bgRealm.getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
+                        DataProspek dpss = getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
                         if (!tvOrder.getText().toString().matches("")
                                 && !tvTanggal.getText().toString().matches("")) {
                             dpss.setKurir(pilkurir);
@@ -496,14 +899,14 @@ public class ListDataFragment extends Fragment {
                                 try {
                                     String tgl = sdf.format(sdf.parse(waktu));
                                     Date tgl_kurir = sdf.parse(tgl.toString());
-                                    dpss.setTgl_dikirim(tgl_kurir);
+                                    dpss.setKurir_tgl_kirim(tgl_kurir.toString());
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                             }
                             dpss.setJmlorder(Integer.parseInt(tvOrder.getText().toString()));
                         }
-                        realm.getDefaultInstance().insertOrUpdate(dpss);
+                        getDefaultInstance().insertOrUpdate(dpss);
                     }
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
@@ -623,8 +1026,8 @@ public class ListDataFragment extends Fragment {
         // spinner konsultan
         // List<Konsultan> spinkonsul = new ArrayList<>();
         // RealmResults<Konsultan> resultKonsul = null;
-        RealmResults<Konsultan> resultKonsul = realm.getDefaultInstance().where(Konsultan.class).findAll();
-        List<Konsultan> spinkonsul = realm.getDefaultInstance().copyFromRealm(resultKonsul);
+        RealmResults<Konsultan> resultKonsul = getDefaultInstance().where(Konsultan.class).findAll();
+        List<Konsultan> spinkonsul = getDefaultInstance().copyFromRealm(resultKonsul);
 
         SpinnerKonsultanAdapter isiadapter = new SpinnerKonsultanAdapter(spinkonsul);
         konsul1.setAdapter(isiadapter);
@@ -637,13 +1040,13 @@ public class ListDataFragment extends Fragment {
         konsul1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(final AdapterView<?> parent, View view, int position, final long id) {
-                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm bgRealm) {
                         DataProspek dp1 = bgRealm.where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
                         Konsultan kons = (Konsultan) parent.getSelectedItem();
                         dp1.setKonsultan1(String.valueOf(kons.getId_konsultan()));
-                        realm.getDefaultInstance().insertOrUpdate(dp1);
+                        getDefaultInstance().insertOrUpdate(dp1);
                     }
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
@@ -666,13 +1069,13 @@ public class ListDataFragment extends Fragment {
         konsul2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(final AdapterView<?> parent, View view, int position, long id) {
-                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm bgRealm) {
                         DataProspek dp2 = bgRealm.where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
                         Konsultan kons2 = (Konsultan) parent.getSelectedItem();
                         dp2.setKonsultan2(String.valueOf(kons2.getId_konsultan()));
-                        realm.getDefaultInstance().insertOrUpdate(dp2);
+                        getDefaultInstance().insertOrUpdate(dp2);
                     }
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
@@ -694,7 +1097,7 @@ public class ListDataFragment extends Fragment {
         alertDialogBuilder.setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm bgRealm) {
                         DataProspek dpss = bgRealm.where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
@@ -704,7 +1107,7 @@ public class ListDataFragment extends Fragment {
                             dpss.setTgl_penyuluhan(Commons.toDate(tanggal_penyuluhan));
                             dpss.setWaktu_penyuluhan(tvJam.getText().toString());
                         }
-                        realm.getDefaultInstance().insertOrUpdate(dpss);
+                        getDefaultInstance().insertOrUpdate(dpss);
                     }
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
@@ -762,7 +1165,7 @@ public class ListDataFragment extends Fragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                        getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                             @Override
                             public void execute(Realm bgRealm) {
                                 DataProspek dps = bgRealm.where(DataProspek.class).equalTo("id_prospek", id_prospek).findFirst();
@@ -771,7 +1174,7 @@ public class ListDataFragment extends Fragment {
                                     dps.setStatus_koor(true);
                                 }
                                 dps.setStatus_koor(true);
-                                realm.getDefaultInstance().insertOrUpdate(dps);
+                                getDefaultInstance().insertOrUpdate(dps);
                             }
                         }, new Realm.Transaction.OnSuccess() {
                             @Override
@@ -805,7 +1208,7 @@ public class ListDataFragment extends Fragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                        getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                             @Override
                             public void execute(Realm bgRealm) {
                                 DataProspek dps = bgRealm.where(DataProspek.class).equalTo("id_prospek", id_prospek).findFirst();
@@ -814,7 +1217,7 @@ public class ListDataFragment extends Fragment {
                                     dps.setStatus_ma(true);
                                 }
                                 dps.setStatus_ma(true);
-                                realm.getDefaultInstance().insertOrUpdate(dps);
+                                getDefaultInstance().insertOrUpdate(dps);
                             }
                         }, new Realm.Transaction.OnSuccess() {
                             @Override
@@ -838,6 +1241,11 @@ public class ListDataFragment extends Fragment {
     private void kirimDataServer(DataProspek dp){
         Commons cmn = new Commons(getContext());
         final long idprospek = dp.getId_prospek();
+        final int usid = uid;
+        final int guid = dp.getUid();
+        // final int kuid = Integer.parseInt(dp.getKonsultan1());
+        final String konsul = (dp.getKonsultan1().matches("") || dp.getKonsultan1().matches("null") || dp.getKonsultan1() == null) ? "0" : dp.getKonsultan1();
+
         final DataProspek dpr = realm.where(DataProspek.class).equalTo("id_prospek", idprospek).findFirst();
         GsonBuilder gsonBuilder = new GsonBuilder().setLenient();
         gsonBuilder.setExclusionStrategies(new ExclusionStrategy() {
@@ -852,55 +1260,188 @@ public class ListDataFragment extends Fragment {
             }
         });
 
+        RealmResults<FotoProspek> relfotop = realm.where(FotoProspek.class)
+                .equalTo("uuid", dp.getUuid())
+                .equalTo("is_dikirim", false)
+                .findAll();
+        List<FotoProspek> listfoto = realm.copyFromRealm(relfotop);
+
+        RealmResults<FotoPresentasi> relfotopresen = realm.where(FotoPresentasi.class)
+                .equalTo("uuid", dp.getUuid())
+                .equalTo("is_dikirim", false)
+                .findAll();
+        List<FotoPresentasi> listfotopresen = realm.copyFromRealm(relfotopresen);
+
         try {
             gsonBuilder.registerTypeAdapter(Class.forName("io.realm.DataProspekRealmProxy"), new DataProspekSerializer());
             Gson gson = gsonBuilder.create();
             String json = gson.toJson(dpr);
             Log.i(TAG, "Data json yang mau dikirim ke server: " + json);
             if(cmn.isNetworkConnected()){
-                new AsyncPostJson(getContext(), Config.URL_POST_DATA_CATAT, "pencatatan", json, new AsyncPostJson.AsyncPostResponse() {
-                    @Override
-                    public void processFinish(String output) {
-                        if(!output.matches("")) {
-                            try {
-                                final JSONObject jsonObject = new JSONObject(output);
-                                if (jsonObject.has("success") && jsonObject.getBoolean("success")) {
-                                    realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                                        @Override
-                                        public void execute(Realm bgRealm) {
-                                            Log.i(TAG, "idprospek: "+idprospek);
-                                            DataProspek dps = bgRealm.getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idprospek).findFirst();
-                                            if (dps == null) {
-                                                dps = new DataProspek();
-                                                dps.setIs_dikirim(true);
+                if((usid > guid) && (usid > Integer.parseInt(konsul)) && (tipe_user != 4) && (tipe_user != 2)){
+                    buatPesanJendela("Error", "Anda tidak berhak mengakses data ini.");
+                } else {
+                    // upload foto presentasi
+                    if(listfotopresen.size() > 0) {
+                        int i = 1;
+                        for (FotoPresentasi fotos : listfotopresen) {
+                            final StringBuilder sb = new StringBuilder()
+                                    .append("k_")
+                                    .append(String.valueOf(fotos.getId())).append("_")
+                                    .append(dp.getUuid())
+                                    .append("_")
+                                    .append(fotos.getFilename());
+                            Log.i(TAG, "String foto presentasi: " + sb.toString());
+                            new UploadFile(getContext(), sb.toString(), fotos.getUri_foto(), new UploadFile.AsyncResponse() {
+                                @Override
+                                public void processFinish(String output) {
+                                    if(output == null){
+                                        Log.i(TAG, "upload file presentasi error");
+                                    } else {
+                                        final JSONObject jsonObject;
+                                        try {
+                                            jsonObject = new JSONObject(output);
+                                            if(jsonObject.has("success") && jsonObject.getBoolean("success")) {
+                                                final String namafile = jsonObject.getString("file");
+                                                final String uuid = jsonObject.getString("uuid");
+                                                final String fuid = jsonObject.getString("id");
+                                                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                                                    @Override
+                                                    public void execute(Realm bgRealm) {
+                                                        FotoPresentasi fps = getDefaultInstance().where(FotoPresentasi.class).equalTo("id", Integer.parseInt(fuid)).findFirst();
+                                                        if(fps != null)
+                                                        {
+                                                            fps.setIs_dikirim(true);
+                                                            fps.setUuid(uuid);
+                                                            fps.setFilename(namafile);
+                                                            getDefaultInstance().insertOrUpdate(fps);
+                                                        }
+                                                    }
+                                                }, new Realm.Transaction.OnSuccess() {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        Log.i(TAG, "Sukses upload foto Presentasi.");
+                                                    }
+                                                });
+                                                // Log.i(TAG, "upload file" + sb.toString());
                                             }
-                                            dps.setIs_dikirim(true);
-                                            bgRealm.getDefaultInstance().insertOrUpdate(dps);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
-                                    }, new Realm.Transaction.OnSuccess() {
-                                        @Override
-                                        public void onSuccess() {
-                                            try {
-                                                buatPesanJendela("Sukses", jsonObject.getString("pesan"));
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    buatPesanJendela("Error", jsonObject.getString("pesan"));
+                                    }
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            buatPesanJendela("Error", "Server tidak merespon!");
+                            }).execute();
+                            i++;
                         }
                     }
-                }).execute();
+
+                    // upload foto prospek
+                    if(listfoto.size() > 0) {
+                        int i = 1;
+                        for (FotoProspek foto : listfoto) {
+                            final StringBuilder sb = new StringBuilder()
+                                    .append("p_")
+                                    .append(String.valueOf(foto.getId())).append("_")
+                                    .append(dp.getUuid())
+                                    .append("_")
+                                    .append(foto.getFilename());
+                            Log.i(TAG, "String foto prospek: " + sb.toString());
+                            new UploadFile(getContext(), sb.toString(), foto.getUri_foto(), new UploadFile.AsyncResponse() {
+                                @Override
+                                public void processFinish(String output) {
+                                    /*
+                                    if(output == null){
+                                        Log.i(TAG, "upload file error");
+                                    } else if(output.matches("ok")){
+                                        Log.i(TAG, "upload file" + sb.toString());
+                                    }
+                                    */
+                                    if(output == null){
+                                        Log.i(TAG, "upload file prospek error");
+                                    } else {
+                                        final JSONObject jsonObject;
+                                        try {
+                                            jsonObject = new JSONObject(output);
+                                            if(jsonObject.has("success") && jsonObject.getBoolean("success")) {
+                                                final String namafile = jsonObject.getString("file");
+                                                final String uuid = jsonObject.getString("uuid");
+                                                final String fuid = jsonObject.getString("id");
+                                                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                                                    @Override
+                                                    public void execute(Realm bgRealm) {
+                                                        FotoProspek fps = getDefaultInstance().where(FotoProspek.class).equalTo("id", Integer.parseInt(fuid)).findFirst();
+                                                        if(fps != null)
+                                                        {
+                                                            fps.setIs_dikirim(true);
+                                                            fps.setUuid(uuid);
+                                                            fps.setFilename(namafile);
+                                                            getDefaultInstance().insertOrUpdate(fps);
+                                                        }
+                                                    }
+                                                }, new Realm.Transaction.OnSuccess() {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        Log.i(TAG, "Sukses upload foto Prospek.");
+                                                    }
+                                                });
+                                                // Log.i(TAG, "upload file" + sb.toString());
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }).execute();
+                            i++;
+                        }
+                    }
+
+                    new AsyncPostJson(getContext(), Config.URL_POST_DATA_CATAT, "pencatatan", json, new AsyncPostJson.AsyncPostResponse() {
+                        @Override
+                        public void processFinish(String output) {
+                            if(!output.matches("")) {
+                                try {
+                                    final JSONObject jsonObject = new JSONObject(output);
+                                    if (jsonObject.has("success") && jsonObject.getBoolean("success")) {
+                                        realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                                            @Override
+                                            public void execute(Realm bgRealm) {
+                                                Log.i(TAG, "idprospek: "+idprospek);
+                                                DataProspek dps = getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idprospek).findFirst();
+                                                if (dps == null) {
+                                                    dps = new DataProspek();
+                                                    dps.setIs_dikirim(true);
+                                                }
+                                                dps.setIs_dikirim(true);
+                                                getDefaultInstance().insertOrUpdate(dps);
+                                            }
+                                        }, new Realm.Transaction.OnSuccess() {
+                                            @Override
+                                            public void onSuccess() {
+                                                try {
+                                                    buatPesanJendela("Sukses", jsonObject.getString("pesan"));
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        buatPesanJendela("Error", jsonObject.getString("pesan"));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                buatPesanJendela("Error", "Server tidak merespon!");
+                            }
+                        }
+                    }).execute();
+                }
+
             } else {
                 buatPesanJendela("Error", "Silahkan cek koneksi jaringan Internet anda!");
             }
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -911,6 +1452,10 @@ public class ListDataFragment extends Fragment {
         LayoutInflater li = getActivity().getLayoutInflater();
         View promptsView = li.inflate(R.layout.updatestatus, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+        final int usid = uid;
+        final int guid = dp.getUid();
+        final String konsul = dp.getKonsultan1();
 
         String[] strings = new String [] {"Data tidak valid",
                 "Dalam Konfirmasi (on-progress)",
@@ -929,37 +1474,52 @@ public class ListDataFragment extends Fragment {
             rg.addView(rb);
         }
 
-        /*
-        alertDialogBuilder.setItems(pilihanmenu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        });
-        */
-
         alertDialogBuilder.setView(promptsView);
         alertDialogBuilder.setTitle("Update Status :: " + dp.getTempat());
         alertDialogBuilder.setIcon(R.drawable.ic_assignment_black_36dp);
         final long idp = dp.getId_prospek();
+
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                RadioButton checkedRadioButton = (RadioButton) group.findViewById(checkedId);
+                boolean isChecked = checkedRadioButton.isChecked();
+                if (isChecked)
+                {
+                    final int position = group.indexOfChild(checkedRadioButton);
+                    getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm bgRealm) {
+                            DataProspek dps = getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
+                            if (dps != null) {
+                                dps.setStatus_prospek(position + 1);
+                            }
+                            getDefaultInstance().insertOrUpdate(dps);
+                        }
+                    }, new Realm.Transaction.OnSuccess() {
+                        @Override
+                        public void onSuccess() {
+                            // buatPesanJendela("Sukses", "Status berhasil diupdate");
+                            Log.i(TAG, "Status penyuluhan berhasil diupdate.");
+                        }
+                    });
+                }
+            }
+        });
+
         alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, final int which) {
-                realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm bgRealm) {
-                    DataProspek dps = bgRealm.getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
-                    if (dps != null) {
-                        dps.setStatus_prospek(which + 1);
+                if(konsul.matches("") || konsul.matches("null") || konsul == null)
+                {
+                    buatPesanJendela("Error", "Silahkan pilih konsultan terlebih dahulu.");
+                } else {
+                    if(usid > Integer.parseInt(konsul) || tipe_user != 4){
+                        buatPesanJendela("Error", "Anda tidak berhak mengupdate status data ini.");
+                    } else {
+                        buatPesanJendela("Sukses", "Status penyuluhan berhasil diupdate");
                     }
-                    bgRealm.getDefaultInstance().insertOrUpdate(dps);
-                    }
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-                    buatPesanJendela("Sukses", "Status berhasil diupdate");
-                    }
-                });
+                }
             }
         });
 
@@ -1025,7 +1585,7 @@ public class ListDataFragment extends Fragment {
                         .contains("tempat", newText, Case.INSENSITIVE)
                         .or()
                         .contains("nama", newText, Case.INSENSITIVE)
-                        .findAll().sort("tempat", Sort.ASCENDING);
+                        .findAll().sort("tgl_catat", Sort.DESCENDING);
 
                 setDataProspek(result);
 
@@ -1109,11 +1669,48 @@ public class ListDataFragment extends Fragment {
 
     }
 
+    private void refreshData(){
+        String imei = getImei();
+        new AmbilData(getContext(), uid, tipe_user, imei, Config.URL_GETDATA_CATAT, new AmbilData.AsyncPostResponse(){
+            @Override
+            public void processFinish(String output) {
+                InputStream stream = null;
+                Realm realm = getDefaultInstance();
+                realm.beginTransaction();
+                Log.i(TAG, "data dari server: "+output);
+                stream = new ByteArrayInputStream(output.getBytes(StandardCharsets.UTF_8));
+                if (stream != null) {
+                    try {
+                        realm.createOrUpdateAllFromJson(DataProspek.class, stream);
+                        realm.commitTransaction();
+                    } finally {
+                        try {
+                            stream.close();
+                            adapter.notifyDataSetChanged();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }).execute();
+    }
+
+    public String getImei() {
+        TelephonyManager mngr = (TelephonyManager) getActivity().getApplicationContext().getSystemService(getActivity().getApplicationContext().TELEPHONY_SERVICE);
+        String imei = mngr.getDeviceId();
+        return imei;
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
+                return true;
+            case R.id.refresh:
+                refreshData();
                 return true;
             case R.id.filter:
                 sortirData();
@@ -1139,7 +1736,7 @@ public class ListDataFragment extends Fragment {
     OrderedRealmCollection<DataProspek> getAllData(){
         RealmResults<DataProspek> data = realm.where(DataProspek.class)
                 .findAll()
-                .sort("tempat", Sort.ASCENDING);
+                .sort("tgl_catat", Sort.DESCENDING);
         return data;
     }
 
@@ -1165,6 +1762,10 @@ public class ListDataFragment extends Fragment {
         super.onDestroy();
         recyclerView.setAdapter(null);
         realm.close();
+        if (swipeLayout!=null) {
+            swipeLayout.setRefreshing(false);
+        }
+
     }
 
     /**
@@ -1184,7 +1785,7 @@ public class ListDataFragment extends Fragment {
             @Override
             protected Void doInBackground(Object... params) {
                 InputStream stream = null;
-                Realm realm = Realm.getDefaultInstance();
+                Realm realm = getDefaultInstance();
                 realm.beginTransaction();
                 try {
                     stream = new FileInputStream(new File(Config.FILE_KONSULTAN).getAbsolutePath());
@@ -1193,6 +1794,37 @@ public class ListDataFragment extends Fragment {
                 }
                 try {
                     realm.createOrUpdateAllFromJson(Konsultan.class, stream);
+                    realm.commitTransaction();
+                } finally {
+                    if (stream != null) {
+                        try {
+                            stream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                return null;
+            }
+        }.execute();
+    }
+
+
+    private void loadKurirFromStream() throws IOException {
+        new AsyncTask<Object, Object, Void>() {
+
+            @Override
+            protected Void doInBackground(Object... params) {
+                InputStream stream = null;
+                Realm realm = getDefaultInstance();
+                realm.beginTransaction();
+                try {
+                    stream = new FileInputStream(new File(Config.FILE_KURIR).getAbsolutePath());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    realm.createOrUpdateAllFromJson(Kurir.class, stream);
                     realm.commitTransaction();
                 } finally {
                     if (stream != null) {
@@ -1453,6 +2085,14 @@ public class ListDataFragment extends Fragment {
             text.setText(data.get(position).getNama_kurir());
             return text;
         }
+    }
+
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE); // 1
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo(); // 2
+        return networkInfo != null && networkInfo.isConnected(); // 3
     }
 
 

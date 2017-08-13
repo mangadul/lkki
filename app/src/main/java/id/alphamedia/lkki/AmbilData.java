@@ -1,7 +1,7 @@
 package id.alphamedia.lkki;
 
 /**
- * Created by abdulmuin on 29/07/17.
+ * Created by abdulmuin on 05/08/17.
  */
 
 import android.app.ProgressDialog;
@@ -20,9 +20,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class AsyncPostJson extends AsyncTask<String, Void, String> {
+public class AmbilData  extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "AsyncPostJson";
+    private static final String TAG = "AmbilData";
+    private OkHttpClient client = new OkHttpClient();
+    private String respon;
+
 
     public interface AsyncPostResponse {
         void processFinish(String output);
@@ -31,32 +34,29 @@ public class AsyncPostJson extends AsyncTask<String, Void, String> {
     public AsyncPostResponse delegate = null;
 
     final Request request;
-    final OkHttpClient client;
 
     Context context;
 
     ProgressDialog dialog;
-    String url;
+    int uid;
 
-    public AsyncPostJson(Context context, String url, String paramurl, String json, AsyncPostResponse delegate){
+    public AmbilData(Context context, int uid, int utipe, String imei, String url, AsyncPostResponse delegate) {
+        this.uid = uid;
         this.delegate = delegate;
         this.context = context;
-        this.url = url;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String tgl_kirim = sdf.format(new Date());
 
         dialog = new ProgressDialog(context, ProgressDialog.STYLE_SPINNER);
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String tgl_kirim = sdf.format(new Date());
-
-        final Commons cmn = new Commons(context);
-
         HashMap<String, String> param = new HashMap<>();
-        param.put("data", json);
         param.put("tgl_kirim", tgl_kirim);
-        param.put("imei", cmn.getIMEI());
-        param.put("param", paramurl);
+        param.put("imei", imei);
+        param.put("uid", String.valueOf(uid));
+        param.put("param", "60402199bfc8dac3b15304b47dcdf99d1f65547b662bdf4b7f5d85944e36ac79");
 
         FormBody.Builder builder = new FormBody.Builder();
         for(Map.Entry<String, String> entry : param.entrySet() ) {
@@ -70,12 +70,21 @@ public class AsyncPostJson extends AsyncTask<String, Void, String> {
                 .url(url)
                 .post(formBody)
                 .build();
+
+    }
+
+    public String getData(){
+        return respon;
+    }
+
+    public void setData(String data) {
+        this.respon = data;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        this.dialog.setMessage("Upload data...");
+        this.dialog.setMessage("Memuat data dari server...");
         this.dialog.show();
     }
 
@@ -84,7 +93,6 @@ public class AsyncPostJson extends AsyncTask<String, Void, String> {
         try {
             Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) {
-                // Toast.makeText(context, "Periksa jaringan internet anda.", Toast.LENGTH_SHORT).show();
                 return null;
             }
             String ret = response.body().string();

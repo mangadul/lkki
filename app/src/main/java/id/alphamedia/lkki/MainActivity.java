@@ -40,7 +40,6 @@ import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.onesignal.OneSignal;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -137,11 +136,6 @@ public class MainActivity extends AppCompatActivity
         // Realm.deleteRealm(realmConfiguration);
 
         realm = Realm.getDefaultInstance();
-
-        OneSignal.startInit(this)
-                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
-                .unsubscribeWhenNotificationsAreDisabled(true)
-                .init();
 
         /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -346,6 +340,7 @@ public class MainActivity extends AppCompatActivity
         ft = getSupportFragmentManager().beginTransaction();
         ft.replace(fragment_container, new MainFragment());
 
+        /*
         if (id == R.id.nav_konsultan) {
             // Handle the camera action
         } else if (id == R.id.nav_koordinator) {
@@ -353,22 +348,23 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_kurir) {
 
         } else if (id == R.id.nav_ma) {
+        } else if (id == R.id.nav_presentasi) {
 
-        } else if (id == R.id.nav_pendata) {
+        } else */
+
+        if (id == R.id.nav_pendata) {
             Fragment fragment = new ListDataFragment();
             fragment.setArguments(args);
             // setTitle(menuDrawer[id]); # masih error
-            setTitle("Pendataan");
+            setTitle("Data Pencatatan");
             ft.replace(fragment_container, fragment);
 
         } else if (id == R.id.nav_pendataan) {
-            // FragmentInputData long_text = (FragmentInputData) getSupportFragmentManager().findFragmentById(R.id.);
-            Fragment frinput = new FragmentInputData();
-            frinput.setArguments(args);
-            setTitle("Input Data");
-            ft.replace(fragment_container, frinput);
-        } else if (id == R.id.nav_presentasi) {
-
+                // FragmentInputData long_text = (FragmentInputData) getSupportFragmentManager().findFragmentById(R.id.);
+                Fragment frinput = new FragmentInputData();
+                frinput.setArguments(args);
+                setTitle("Input Data");
+                ft.replace(fragment_container, frinput);
         }
 
         else if (id == R.id.nav_logout) {
@@ -911,6 +907,7 @@ public class MainActivity extends AppCompatActivity
         downloadDataFile(Config.JSON_KECAMATAN, getString(R.string.file_json_kecamatan));
         downloadDataFile(Config.JSON_DESA, getString(R.string.file_json_desa));
         downloadDataFile(Config.JSON_KONSULTAN, getString(R.string.file_json_konsultan));
+        downloadDataFile(Config.JSON_KURIR, getString(R.string.file_json_kurir));
     }
 
 

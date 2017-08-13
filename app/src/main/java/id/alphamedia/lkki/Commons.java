@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -108,33 +109,37 @@ public class Commons {
 
     public static Date toDate(String dateString) {
         Date date = null;
+        String formatted = "";
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             date = formatter.parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        // Log.e("Print result: ", String.valueOf(date));
+        Log.i("Print result: ", String.valueOf(date));
         return date;
     }
 
 
-    public static String toDateMysql(String dateString){
-        SimpleDateFormat localDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String date = localDateFormat.format(dateString);
-        return date;
-    }
+    public static String toMySQLDate(String date){
+        /*
+        String formatted = "";
+        SimpleDateFormat format_tgl = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        */
 
-    public static String getTime(String dateString){
-        SimpleDateFormat localDateFormat = new SimpleDateFormat("HH:mm:ss");
-        String time = localDateFormat.format(dateString);
-        return time;
-    }
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String format = formatter.format(date);
 
-    public static String getDate(String dateString){
-        SimpleDateFormat localDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String tgl = localDateFormat.format(dateString);
-        return tgl;
+        /*
+        DateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+        try {
+            Date tanggal = (Date) formatter.parse(date);
+            formatted = format_tgl.format(tanggal);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        */
+        return String.valueOf(format);
     }
 
 }

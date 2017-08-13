@@ -13,12 +13,13 @@ import io.realm.annotations.Required;
 
 public class DataProspek extends RealmObject  {
 
-    @PrimaryKey
+    // @PrimaryKey
     private long id_prospek;
 
     // private long id_prospek = PrimaryKeyFactory.nextKey(DataProspek.class);
 
 
+    @PrimaryKey
     @Required
     @Index
     private String uuid;
@@ -54,6 +55,7 @@ public class DataProspek extends RealmObject  {
     private Date tgl_dikirim;
 
     private int kurir, jmlorder;
+    private String kurir_tgl_kirim;
 
     public DataProspek(){
     }
@@ -179,6 +181,14 @@ public class DataProspek extends RealmObject  {
 
     public void setJmlorder(int jmlorder){ this.jmlorder = jmlorder; }
     public int getJmlorder(){ return jmlorder; }
+
+    public void setKurir_tgl_kirim(String kurir_tgl_kirim){
+        this.kurir_tgl_kirim = kurir_tgl_kirim;
+    }
+
+    public String getKurir_tgl_kirim(){
+        return kurir_tgl_kirim;
+    }
 
 }
 

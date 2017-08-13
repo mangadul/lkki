@@ -17,6 +17,9 @@ public class FotoProspek extends RealmObject {
     @Required
     private String uuid;
 
+    private int uid;
+
+    private String filename;
     private String uri_foto;
 
     private boolean is_dikirim;
@@ -30,12 +33,28 @@ public class FotoProspek extends RealmObject {
         return id;
     }
 
+    public void setUid(int uid){
+        this.uid = uid;
+    }
+
+    public int getUid(){
+        return uid;
+    }
+
     public void setUuid(String uuid){
         this.uuid = uuid;
     }
 
     public String getUuid(){
         return uuid;
+    }
+
+    public void setFilename(String filename){
+        this.filename = filename;
+    }
+
+    public String getFilename(){
+        return this.filename;
     }
 
     public void setUri_foto(String uri_foto){

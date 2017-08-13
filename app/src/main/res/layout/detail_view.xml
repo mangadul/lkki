@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:scaleType="centerCrop"
+                android:id="@+id/peta_lokasi"
+                android:src="@drawable/ic_location_on_black_36dp" />
+
+
+            <android.support.v7.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#455A64"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_scrollFlags="scroll|enterAlways">
+            <GridLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="1"
+                android:padding="16dp"
+                android:rowCount="1">
+            <TextView
+                android:layout_gravity="center"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:textSize="18sp"
+                android:text="Data Pencatatan"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+            </GridLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_scrollFlags="scroll|enterAlways"
+            android:background="#EEEEEE"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nama Tempat"
+                android:id="@+id/head_nama_tempat"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:id="@+id/head_pendata"
+                android:text="Nama Pendata"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:id="@+id/head_tgl_catat"
+                android:text="12 Agustus 2017 Jam 00:00:00"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:id="@+id/head_tgl_update_server"
+                android:text="17 Agustus 2017 Jam 00:00:00"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:id="@+id/head_konsultan"
+                android:text="Nama Konsultan"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:text="Tanggal Presentasi"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:id="@+id/head_tgl_presentasi"
+                android:text="12 Agustus 2017 Jam 00:00:00"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:id="@+id/head_kurir"
+                android:text="Nama Kurir"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:text="Tanggal Kirim"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#37474F"
+                android:id="@+id/head_tgl_kirim"
+                android:text="12 Agustus 2017"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:id="@+id/head_catatan"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit."/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:text="Foto Pendataan"/>
+
+            <LinearLayout
+                android:id="@+id/layout_foto_pendataan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:text="Foto Presentasi"/>
+
+            <LinearLayout
+                android:id="@+id/layout_foto_presentasi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="Alamat Pendataan"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_nama_tempat"
+                android:text="RW 012 Gandasari"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_alamat"
+                android:text="Alamat Jalan"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_rt_rw"
+                android:text="Rt / Rw"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_desa"
+                android:text="Desa / Kelurahan"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_kecamatan"
+                android:text="Kecamatan"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_kabupaten"
+                android:text="Kabupaten"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_provinsi"
+                android:text="Provinsi"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:text="Kontak"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_nama_kontak"
+                android:text="Nama yang dihubungi"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_kontak_no_hp"
+                android:text="No HP"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_jabatan"
+                android:text="Jabatan"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:text="Koordinat Lokasi"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_koordinat"
+                android:text="Latitude / Longitude"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:text="Alamat menurut Google"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/info_alamat_google"
+                android:text="Data Alamat terdekat menurut Google"/>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

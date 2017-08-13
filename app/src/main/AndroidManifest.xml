@@ -75,6 +75,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data android:name="com.onesignal.NotificationOpened.DEFAULT" android:value="DISABLE" />
+
         <meta-data
             android:name="com.onesignal.NotificationAccentColor.DEFAULT"
             android:value="FF00FF00" />

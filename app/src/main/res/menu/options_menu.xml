@@ -7,11 +7,15 @@
         android:showAsAction="always"
         android:actionViewClass="android.widget.SearchView" />
 
+    <item android:id="@+id/refresh"
+        android:title="Refresh"
+        android:icon="@drawable/ic_filter_list_white_24dp"
+        android:showAsAction="always|ifRoom" />
+
     <item android:id="@+id/filter"
         android:title="Sortir"
         android:icon="@drawable/ic_filter_list_white_24dp"
-        android:showAsAction="always"
-        android:actionViewClass="android.widget.SearchView" />
+        android:showAsAction="always|ifRoom" />
 
     <!--
     <group android:id="@+id/group_normal_mode">

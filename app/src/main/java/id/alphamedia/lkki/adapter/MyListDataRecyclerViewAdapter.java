@@ -110,7 +110,16 @@ public class MyListDataRecyclerViewAdapter
                 holder.konsultan.setTextColor(Color.BLACK);
             }
 
-            String kons1 = (konsul.getNama_konsultan().matches("")) ?  "<konsultan_blm_dipilih>" : konsul.getNama_konsultan();
+            String kons1 = "";
+
+            if(konsul == null)
+            {
+                kons1 = "<konsultan_blm_dipilih>";
+            } else {
+                kons1 = (konsul.getNama_konsultan().matches("") || konsul.getNama_konsultan().matches("null"))
+                        ?  "<konsultan_blm_dipilih>"
+                        : konsul.getNama_konsultan();
+            }
 
             StringBuilder sbKon = new StringBuilder()
                     .append("Konsultan:: ")
@@ -198,7 +207,10 @@ public class MyListDataRecyclerViewAdapter
 
         String status_koordinator = dp.isStatus_koor() ? "[DIVALIDASI KOORDINATOR]" : "[BELUM DICEK KOOR]";
         String status_ma = dp.isStatus_ma() ? "[DIVALIDASI MANAGER AREA]" : "[BELUM DICEK MA]";
-        String status_presentasi = dp.isStatus_presentasi() ? "[SUDAH]" : "[BELUM]";
+
+        // String status_presentasi = dp.isStatus_presentasi() ? "[SUDAH]" : "[BELUM]";
+        String status_presentasi = (dp.getStatus_prospek() == 4) ? "[SUDAH]" : "[BELUM]";
+
         StringBuilder latlng = new StringBuilder()
                 .append("Lat/Long: ")
                 .append(dp.getLokasi_lat())
@@ -206,7 +218,7 @@ public class MyListDataRecyclerViewAdapter
                 .append(dp.getLokasi_long());
 
         // status presentasi
-        if(dp.isStatus_presentasi()) {
+        if(dp.getStatus_prospek() == 4) {
             holder.status_presentasi.setTextColor(Color.BLUE);
             holder.status_presentasi.setText(status_presentasi);
         } else {

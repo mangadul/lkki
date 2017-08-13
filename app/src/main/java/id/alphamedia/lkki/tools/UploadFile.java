@@ -1,4 +1,4 @@
-package id.alphamedia.lkki;
+package id.alphamedia.lkki.tools;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,71 +7,79 @@ import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 
-import okhttp3.FormBody;
+import id.alphamedia.lkki.Config;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-class AsyncLogin extends AsyncTask<String, Void, String> {
+/**
+ * Created by abdulmuin on 04/08/17.
+ */
 
-    private static final String TAG = "AsyncLogn";
+public class UploadFile extends AsyncTask<String, Void, String>  {
+
+    private static final String TAG = "UploadFile";
+    private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+    private static final MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpg");
+    private static final MediaType MEDIA_TYPE_JPEG = MediaType.parse("image/jpeg");
+
+    final String filename;
+    final String fileabs;
+    Context context;
+    ProgressDialog dialog;
+
+    final Request request;
+    final OkHttpClient client;
 
     public interface AsyncResponse {
         void processFinish(String output);
     }
 
     public AsyncResponse delegate = null;
-    public String uname, upass, imei;
 
-    final Request request;
-    final OkHttpClient client;
-
-    Context context;
-
-    ProgressDialog dialog;
-
-    public AsyncLogin(Context context, String user, String pass, String imei, AsyncResponse delegate){
-        this.delegate = delegate;
-        this.uname = user;
-        this.upass = pass;
-        this.imei = imei;
+    public UploadFile(Context context, String filename, String fileabs, AsyncResponse delegate){
         this.context = context;
-
+        this.filename = filename;
+        this.fileabs = fileabs;
+        this.delegate = delegate;
 
         dialog = new ProgressDialog(context, ProgressDialog.STYLE_SPINNER);
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
 
-
-        HashMap<String, String> param = new HashMap<>();
-        param.put( "user", uname );
-        param.put( "password", upass);
-        param.put( "imei", imei);
-
-        FormBody.Builder builder = new FormBody.Builder();
-
-        for(Map.Entry<String, String> entry : param.entrySet() ) {
-            builder.add( entry.getKey(), entry.getValue() );
-        }
-
         client = new OkHttpClient();
 
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("image", filename,
+                        RequestBody.create(MEDIA_TYPE_JPG, new File(fileabs)))
+                .build();
+
+        request = new Request.Builder()
+                .url(Config.URL_UPLOAD)
+                .post(requestBody)
+                .build();
+
+        /*
         RequestBody formBody = builder.build();
         request = new Request.Builder()
                 .url(Config.URL_LOGIN)
                 .post(formBody)
                 .build();
+        */
+
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        this.dialog.setMessage("Login ke server...");
-        this.dialog.show();
+        // this.dialog.setMessage("Upload file...");
+        // this.dialog.show();
     }
 
     @Override
@@ -100,7 +108,7 @@ class AsyncLogin extends AsyncTask<String, Void, String> {
     }
 
     private String dialogError(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context.getApplicationContext());
         builder.setTitle("Error");
         builder.setMessage("GAGAL menyambung ke server, Silahkan cek koneksi jaringan internet anda.")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -108,9 +116,7 @@ class AsyncLogin extends AsyncTask<String, Void, String> {
                         dialog.dismiss();
                     }
                 });
-        builder.create();
-        builder.show();
-
+        builder.create().show();
         return null;
     }
 

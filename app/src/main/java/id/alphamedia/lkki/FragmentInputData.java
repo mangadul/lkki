@@ -422,7 +422,7 @@ public class FragmentInputData extends Fragment implements LocationListener, Vie
             mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                    txtTime.setText( new DecimalFormat("00").format(Double.valueOf(selectedHour)) + ":" + new DecimalFormat("00").format(Double.valueOf(selectedMinute)));
+                    txtTime.setText( new DecimalFormat("00").format(Double.valueOf(selectedHour)) + ":" + new DecimalFormat("00").format(Double.valueOf(selectedMinute)) + ":00");
                 }
             }, mHour, mMinute, true);
             mTimePicker.setTitle("Jam Penyuluhan");
@@ -685,7 +685,7 @@ public class FragmentInputData extends Fragment implements LocationListener, Vie
             data.setLokasi_lat(lats);
             data.setLokasi_long(lngs);
             data.setStatus_prospek(1);
-            data.setTgl_penyuluhan(Commons.toDate(tgl_penyuluhans));
+            data.setTgl_penyuluhan(Commons.toDate(tgl_penyuluhans +" "+jam_penyuluhans));
             data.setWaktu_penyuluhan(jam_penyuluhans);
             data.setDurasi(Integer.parseInt(durasis));
 

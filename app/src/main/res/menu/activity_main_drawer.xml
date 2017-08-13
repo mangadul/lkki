@@ -10,6 +10,7 @@
             android:id="@+id/nav_pendata"
             android:icon="@drawable/ic_account_circle_black_36dp"
             android:title="@string/data_pendata" />
+<!--
         <item
             android:id="@+id/nav_presentasi"
             android:icon="@drawable/ic_assignment_black_36dp"
@@ -34,6 +35,7 @@
             android:id="@+id/nav_setting"
             android:icon="@drawable/ic_menu_manage"
             android:title="Setting" />
+-->
     </group>
 
     <item android:title="Logout">
