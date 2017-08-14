@@ -149,7 +149,6 @@
                 android:hint="Alamat Email" />
         </android.support.design.widget.TextInputLayout>
 
-
         <!-- mobile number -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -159,6 +158,17 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:hint="No HP" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--  username Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText android:id="@+id/input_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="Username" />
         </android.support.design.widget.TextInputLayout>
 
         <!-- Password Label -->

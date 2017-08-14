@@ -14,6 +14,7 @@ public class UserDaftar implements Serializable {
     private String pendidikan;
     private String perguruan_tinggi;
 
+    private String username;
     private String alamat;
     private String desa;
     private String kecamatan;
@@ -23,6 +24,9 @@ public class UserDaftar implements Serializable {
 
     public void setNama(String nama){ this.nama = nama; }
     public String getNama(){ return nama; }
+
+    public void setUsername(String username){ this.username = username; }
+    public String getUsername(){ return username; }
 
     public void setImei(String imei) { this.imei = imei; }
     public String getImei(){ return imei; }

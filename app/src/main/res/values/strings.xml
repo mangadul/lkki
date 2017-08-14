@@ -103,6 +103,20 @@
     <string name="cancel_delete">Cancel Delete</string>
     <string name="group_delete">Group Delete</string>
 
+
+    <!-- login preference -->
+    <string name="userlogged">false</string>
+    <string name="uid">0</string>
+    <string name="tipe_user">0</string>
+    <string name="foto_profil">false</string>
+    <string name="u_name">Username</string>
+    <string name="u_nama">Nama Lengkap</string>
+    <string name="u_nik">NIK Pendata</string>
+    <string name="u_tipe">0</string>
+    <string name="u_wilayah">0</string>
+    <string name="kode_prov">0</string>
+    <string name="kode_kab">0</string>
+
     <string name="com.mapbox.mapboxsdk.accessToken" translatable="false">pk.eyJ1IjoiY2o1azM4ZjdlMDF4bzMzczVjc2F2cHZ2aSIsImEiOiJjajVrMzhmYWQwMXhxMzNzNTZoZnNva2ZmIn0.IKKINmA4YdhpTYf0b0C6UQ</string>
     <string name="file_json_konsultan">konsultan.json</string>
     <string name="title_itemdata_list">ItemsPendataan</string>

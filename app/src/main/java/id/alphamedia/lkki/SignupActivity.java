@@ -50,6 +50,7 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.input_prov) EditText _provinsi;
     @BindView(R.id.input_kodepos) EditText _kodepos;
 
+    @BindView(R.id.input_username) EditText _username;
     @BindView(R.id.btn_signup) Button _signupButton;
     @BindView(R.id.link_login) TextView _loginLink;
 
@@ -95,6 +96,7 @@ public class SignupActivity extends AppCompatActivity {
         String pendidikan = _pendidikan.getText().toString();
         String no_hp = _mobile.getText().toString();
 
+        String username = _username.getText().toString().replace(" ", "").trim();
         String desa = _desa.getText().toString();
         String kecamatan = _kecamatan.getText().toString();
         String kota = _kota.getText().toString();
@@ -105,6 +107,7 @@ public class SignupActivity extends AppCompatActivity {
         List<UserDaftar> daftar = new ArrayList<UserDaftar>();
         UserDaftar mdldaftar = new UserDaftar();
         mdldaftar.setNama(nama);
+        mdldaftar.setUsername(username);
         mdldaftar.setImei(imei);
         mdldaftar.setTempat_lahir(tempat_lahir);
         mdldaftar.setTgl_lahir(tgl_lahir);
@@ -175,11 +178,20 @@ public class SignupActivity extends AppCompatActivity {
         String pendidikan = _pendidikan.getText().toString();
         String no_hp = _mobile.getText().toString();
 
+        String username = _username.getText().toString();
         String desa = _desa.getText().toString();
         String kecamatan = _kecamatan.getText().toString();
         String kota = _kota.getText().toString();
         String provinsi = _provinsi.getText().toString();
         String kodepos = _kodepos.getText().toString();
+
+
+        if (username.isEmpty() || username.length() < 4) {
+            _username.setError("Username harus diisi (minimal 4 karakter)");
+            valid = false;
+        } else {
+            _username.setError(null);
+        }
 
         if (desa.isEmpty() || desa.length() < 3) {
             _desa.setError("Desa harus diisi");

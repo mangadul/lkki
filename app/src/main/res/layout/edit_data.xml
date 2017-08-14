@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_scrollFlags="scroll"
+    android:orientation="vertical"
+    tools:theme="@style/AppTheme.NoActionBar"
+    android:fillViewport="true">
+
+
+    <LinearLayout
+        android:id="@+id/form_input"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_tempat"
+            android:hint="@string/tempat" />
+
+        <EditText
+            android:id="@+id/edit_jalan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/jalan" />
+
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/wrapper2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1.0">
+
+                <EditText
+                    android:id="@+id/edit_rt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/rw"
+                    android:layout_weight=".50"
+                    android:hint="@string/rt"
+                    android:textIsSelectable="true"
+                    android:inputType="none" />
+
+                <EditText
+                    android:id="@+id/edit_rw"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_weight=".50"
+                    android:hint="@string/rw"
+                    android:textIsSelectable="true"
+                    android:inputType="none" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/edit_kelurahan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/kelurahan" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/provinsi"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1.0">
+
+                <EditText
+                    android:id="@+id/kode_prov"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".20" />
+
+                <EditText
+                    android:id="@+id/nama_prov"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".80"
+                    android:hint="Provinsi" />
+
+                <Button
+                    android:layout_height="match_parent"
+                    android:text="Pilih"
+                    android:layout_width="70dp"
+                    android:id="@+id/btn_prov"
+                    android:layout_toRightOf="@+id/nama_prov"
+                    android:layout_toEndOf="@+id/nama_prov" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <!-- kabupaten -->
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/kabupaten"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1.0">
+
+                <EditText
+                    android:id="@+id/kode_kab"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".20" />
+
+                <EditText
+                    android:id="@+id/nama_kab"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".80"
+                    android:hint="Kabupaten" />
+
+                <Button
+                    android:layout_height="match_parent"
+                    android:text="Pilih"
+                    android:layout_width="70dp"
+                    android:id="@+id/btn_kab"
+                    android:layout_toRightOf="@+id/nama_kab"
+                    android:layout_toEndOf="@+id/nama_kab" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <!-- kecamatan -->
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/kecamatan"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1.0">
+
+                <EditText
+                    android:id="@+id/kode_kec"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".20" />
+
+                <EditText
+                    android:id="@+id/nama_kec"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".80"
+                    android:hint="Kecamatan" />
+
+                <Button
+                    android:layout_height="match_parent"
+                    android:text="Pilih"
+                    android:layout_width="70dp"
+                    android:id="@+id/btn_kec"
+                    android:layout_toRightOf="@+id/nama_kec"
+                    android:layout_toEndOf="@+id/nama_kec" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
+        <!-- desa -->
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/desa"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1.0">
+
+                <EditText
+                    android:id="@+id/kode_desa"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".20" />
+
+                <EditText
+                    android:id="@+id/nama_desa"
+                    android:layout_width="0dp"
+                    android:textIsSelectable="true"
+                    android:inputType="none"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".80"
+                    android:hint="Desa / Kelurahan" />
+
+                <Button
+                    android:layout_height="match_parent"
+                    android:text="Pilih"
+                    android:layout_width="70dp"
+                    android:id="@+id/btn_desa"
+                    android:layout_toRightOf="@+id/nama_desa"
+                    android:layout_toEndOf="@+id/nama_desa" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_nama"
+            android:hint="@string/nama" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_jabatan"
+            android:hint="@string/jabatan" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/wrapper5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1.0">
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".50"
+                    android:id="@+id/edit_nohp"
+                    android:hint="@string/no_hp"
+                    android:inputType="number" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".50"
+                    android:hint="@string/no_kantor"
+                    android:id="@+id/edit_nokantor"
+                    android:inputType="number" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/email"
+            android:id="@+id/edit_email"
+            android:inputType="textEmailAddress" />
+
+
+        <RelativeLayout
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content">
+            <EditText
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/edit_tgl_penyuluhan"
+                android:inputType="none"
+                android:hint="Tanggal Penyuluhan"
+                android:textIsSelectable="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tanggal"
+                android:id="@+id/btn_tanggal"
+                android:layout_alignBottom="@+id/edit_tgl_penyuluhan"
+                android:layout_toRightOf="@+id/edit_tgl_penyuluhan"
+                android:layout_toEndOf="@+id/edit_tgl_penyuluhan" />
+
+            <EditText
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/edit_jam_penyuluhan"
+                android:inputType="none"
+                android:hint="Jam Penyuluhan"
+                android:textIsSelectable="true"
+                android:layout_below="@+id/edit_tgl_penyuluhan"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jam"
+                android:id="@+id/btn_jam"
+                android:layout_below="@+id/btn_tanggal"
+                android:layout_alignLeft="@+id/btn_tanggal"
+                android:layout_alignStart="@+id/btn_tanggal" />
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/edit_durasi"
+            android:layout_width="match_parent"
+            android:inputType="number"
+            android:layout_height="wrap_content"
+            android:hint="@string/durasi" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/wrapper"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1.0">
+
+                <EditText
+                    android:id="@+id/lokasi_lat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/lokasi_long"
+                    android:layout_weight=".50"
+                    android:hint="@string/lokasi_lat"
+                    android:textIsSelectable="true"
+                    android:inputType="none" />
+
+                <EditText
+                    android:id="@+id/lokasi_long"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_weight=".50"
+                    android:hint="@string/lokasi_long"
+                    android:textIsSelectable="true"
+                    android:inputType="none" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:id="@+id/edit_catatan"
+            android:hint="@string/keterangan" />
+
+    </LinearLayout>
+
+</ScrollView>

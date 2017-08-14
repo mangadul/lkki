@@ -188,6 +188,18 @@ public class MainActivity extends AppCompatActivity
         sharedpreferences = getSharedPreferences(Config.PREFSDATA,
                 Context.MODE_PRIVATE);
 
+        uid = sharedpreferences.getInt("uid", 0);
+        tipe_user = sharedpreferences.getInt("tipe_user", 0);
+        foto_profil = sharedpreferences.getString("foto_profil", null);
+        u_name = sharedpreferences.getString("u_name", null);
+        u_nama = sharedpreferences.getString("u_nama", null);
+        u_nik = sharedpreferences.getString("u_nik", null);
+        u_tipe = sharedpreferences.getString("u_tipe", null);
+        u_wilayah = sharedpreferences.getString("u_wilayah", null);
+        kode_kab = sharedpreferences.getString("kode_kab", null);
+        kode_prov = sharedpreferences.getString("kode_prov", null);
+
+        /*
         Bundle bundle = getIntent().getExtras();
         uid = bundle.getInt("uid");
         tipe_user = bundle.getInt("tipe_user");
@@ -199,10 +211,10 @@ public class MainActivity extends AppCompatActivity
         u_wilayah = bundle.getString("uwilayah");
         kode_prov = bundle.getString("kode_prov");
         kode_kab = bundle.getString("kode_kab");
+        */
 
         set_sel_prov(Integer.parseInt(kode_prov));
         set_sel_kab(Integer.parseInt(kode_kab));
-
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
@@ -373,8 +385,13 @@ public class MainActivity extends AppCompatActivity
                     .setCancelable(false)
                     .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+
                             SharedPreferences.Editor editor = sharedpreferences.edit();
+                            editor.putBoolean("islogin", false);
+                            editor.putBoolean(getString(R.string.userlogged), false);
+                            editor.commit();
                             editor.clear().apply();
+
                             Intent inten = new Intent();
                             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                             startActivity(intent);

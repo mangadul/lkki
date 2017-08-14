@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.onesignal.OSNotification;
 import com.onesignal.OSNotificationAction;
 import com.onesignal.OSNotificationOpenResult;
@@ -30,7 +29,8 @@ public class LKKIApp extends Application {
                 .debuggable(true)
                 .build();
         Fabric.with(fabric);
-        Mapbox.getInstance(this, getString(R.string.com_mapbox_mapboxsdk_accessToken));
+
+        // Mapbox.getInstance(this, getString(R.string.com_mapbox_mapboxsdk_accessToken));
 
         Realm.init(this);
 

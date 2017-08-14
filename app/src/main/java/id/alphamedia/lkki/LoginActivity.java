@@ -107,6 +107,16 @@ public class LoginActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
 
+        // cek jika user pernah login dan tersimpan
+        sharedpreferences = getSharedPreferences(Config.PREFSDATA,
+                Context.MODE_PRIVATE);
+        Boolean islogin = sharedpreferences.getBoolean("islogin", false);
+        if(islogin) {
+            Intent mainactivity =  new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(mainactivity);
+            finish();
+        }
+
     }
 
 
@@ -212,15 +222,16 @@ public class LoginActivity extends AppCompatActivity {
                                 editor.putInt("uid", mdlUser.getUid());
                                 editor.putInt("tipe_user", mdlUser.getTipe_user());
                                 editor.putBoolean("islogin", true);
-                                editor.putString("uname", mdlUser.getUname());
-                                editor.putString("nama", mdlUser.getNama());
+                                editor.putBoolean("userlogged", true);
+                                editor.putString("u_name", mdlUser.getUname());
+                                editor.putString("u_nama", mdlUser.getNama());
                                 editor.putString("foto_profil", mdlUser.getFoto_profil());
-                                editor.putString("nik", mdlUser.getNik());
+                                editor.putString("u_nik", mdlUser.getNik());
                                 editor.putString("kode_prov", mdlUser.getKode_prov());
                                 editor.putString("kode_kab", mdlUser.getKode_kab());
-                                editor.putString("utipe", mdlUser.getUtipe());
-                                editor.putString("uwilayah", mdlUser.getUwilayah());
-                                editor.apply();
+                                editor.putString("u_tipe", mdlUser.getUtipe());
+                                editor.putString("u_wilayah", mdlUser.getUwilayah());
+                                editor.commit();
 
                                 startActivity(mainactivity);
                                 finish();

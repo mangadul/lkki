@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -103,12 +104,6 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 
 import static id.alphamedia.lkki.BaseFragment.ARGS_INSTANCE;
-import static id.alphamedia.lkki.Config.KODE_KABUPATEN;
-import static id.alphamedia.lkki.Config.KODE_ROVINSI;
-import static id.alphamedia.lkki.Config.NAMA_PENCATAT;
-import static id.alphamedia.lkki.Config.NIK_PENCATAT;
-import static id.alphamedia.lkki.Config.UID;
-import static id.alphamedia.lkki.R.id.tgl_presentasi;
 import static io.realm.Realm.getDefaultInstance;
 
 
@@ -181,12 +176,12 @@ public class ListDataFragment extends Fragment  {
 
         Bundle args = this.getArguments();
         if (args != null) {
-            uid = args.getInt(UID);
+            uid = args.getInt(Config.UID);
             tipe_user = args.getInt(Config.TIPE_USER);
-            param_nama = args.getString(NAMA_PENCATAT);
-            param_nik = args.getString(NIK_PENCATAT);
-            param_kota = args.getString(KODE_KABUPATEN);
-            param_prov = args.getString(KODE_ROVINSI);
+            param_nama = args.getString(Config.NAMA_PENCATAT);
+            param_nik = args.getString(Config.NIK_PENCATAT);
+            param_kota = args.getString(Config.KODE_KABUPATEN);
+            param_prov = args.getString(Config.KODE_ROVINSI);
         }
 
         OrderedRealmCollection<DataProspek> orc = getAllData();
@@ -303,7 +298,7 @@ public class ListDataFragment extends Fragment  {
                                     }
                                     break;
                                 case 2:
-                                    // edit data
+                                    editData(dp);
                                     break;
                                 case 3:
                                     ruteAlamat(dp);
@@ -379,6 +374,233 @@ public class ListDataFragment extends Fragment  {
     public void onPause(){
         super.onPause();
     }
+
+    private void editData(DataProspek dp){
+        final View promptsView;
+        final LayoutInflater li = getActivity().getLayoutInflater();
+        promptsView = li.inflate(R.layout.edit_data, null);
+
+        final TextView edit_tempat = (TextView) promptsView.findViewById(R.id.edit_tempat);
+        final TextView edit_catatan = (TextView) promptsView.findViewById(R.id.edit_catatan);
+        final TextView edit_durasi = (TextView) promptsView.findViewById(R.id.edit_durasi);
+        final TextView edit_email = (TextView) promptsView.findViewById(R.id.edit_email);
+        final TextView edit_jabatan = (TextView) promptsView.findViewById(R.id.edit_jabatan);
+        final TextView edit_jalan = (TextView) promptsView.findViewById(R.id.edit_jalan);
+        final TextView edit_kelurahan = (TextView) promptsView.findViewById(R.id.edit_kelurahan);
+        final TextView edit_nama = (TextView) promptsView.findViewById(R.id.edit_nama);
+        final TextView edit_nohp = (TextView) promptsView.findViewById(R.id.edit_nohp);
+        final TextView edit_nokantor = (TextView) promptsView.findViewById(R.id.edit_nokantor);
+        final TextView edit_rt = (TextView) promptsView.findViewById(R.id.edit_rt);
+        final TextView edit_rw = (TextView) promptsView.findViewById(R.id.edit_rw);
+        final TextView lokasi_lat = (TextView) promptsView.findViewById(R.id.lokasi_lat);
+        final TextView lokasi_long = (TextView) promptsView.findViewById(R.id.lokasi_long);
+        final TextView edit_tgl_penyuluhan = (TextView) promptsView.findViewById(R.id.edit_tgl_penyuluhan);
+        final TextView edit_jam_penyuluhan = (TextView) promptsView.findViewById(R.id.edit_jam_penyuluhan);
+
+        // button
+        Button btn_provinsi = (Button) promptsView.findViewById(R.id.btn_prov);
+        Button btn_kab = (Button) promptsView.findViewById(R.id.btn_kab);
+        Button btn_kec = (Button) promptsView.findViewById(R.id.btn_kec);
+        Button btn_desa = (Button) promptsView.findViewById(R.id.btn_desa);
+        Button btn_tanggal = (Button) promptsView.findViewById(R.id.btn_tanggal);
+        Button btn_jam = (Button) promptsView.findViewById(R.id.btn_jam);
+
+        btn_tanggal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar c = Calendar.getInstance();
+                int mYear = c.get(Calendar.YEAR);
+                int mMonth = c.get(Calendar.MONTH);
+                int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+                DecimalFormat mFormat= new DecimalFormat("00");
+                mFormat.format(Double.valueOf(mMonth));
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                DecimalFormat mFormat= new DecimalFormat("00");
+                                int bln = monthOfYear + 1;
+                                String bul = mFormat.format(Double.valueOf(bln));
+                                edit_tgl_penyuluhan.setText(year +"-" + String.valueOf(bul) + "-" + mFormat.format(Double.valueOf(dayOfMonth)));
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.setTitle("Tanggal Penyuluhan");
+                datePickerDialog.show();
+
+            }
+        });
+
+        btn_jam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get Current Time
+                final Calendar c = Calendar.getInstance();
+                int mHour = c.get(Calendar.HOUR_OF_DAY);
+                int mMinute = c.get(Calendar.MINUTE);
+                TimePickerDialog mTimePicker;
+                mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                        edit_jam_penyuluhan.setText( new DecimalFormat("00").format(Double.valueOf(selectedHour)) + ":" + new DecimalFormat("00").format(Double.valueOf(selectedMinute)) + ":00");
+                    }
+                }, mHour, mMinute, true);
+                mTimePicker.setTitle("Jam Penyuluhan");
+                mTimePicker.show();
+
+            }
+        });
+
+        // prov, kota, kec, desa
+        final TextView kode_prov = (TextView) promptsView.findViewById(R.id.kode_prov);
+        final TextView nama_prov = (TextView) promptsView.findViewById(R.id.nama_prov);
+        final TextView kode_kab = (TextView) promptsView.findViewById(R.id.kode_kab);
+        final TextView nama_kab  = (TextView) promptsView.findViewById(R.id.nama_kab);
+        final TextView kode_kec  = (TextView) promptsView.findViewById(R.id.kode_kec);
+        final TextView nama_kec  = (TextView) promptsView.findViewById(R.id.nama_kec);
+        final TextView kode_desa  = (TextView) promptsView.findViewById(R.id.kode_desa);
+        final TextView nama_desa  = (TextView) promptsView.findViewById(R.id.nama_desa);
+
+        // pilih provinsi
+        btn_provinsi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RealmResults<Provinsi> prov = realm.getDefaultInstance().where(Provinsi.class).findAll();
+                final List<Provinsi> lis_prov = realm.getDefaultInstance().copyFromRealm(prov);
+                final AlertDialog.Builder dialogProv = new AlertDialog.Builder(getActivity());
+                dialogProv.setTitle("Pilih Provinsi");
+                final ArrayAdapter<Provinsi> adapterProv = new ArrayAdapter<Provinsi>(getActivity(), android.R.layout.select_dialog_singlechoice);
+                adapterProv.addAll(lis_prov);
+                adapterProv.notifyDataSetChanged();
+                dialogProv.setAdapter(adapterProv, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Provinsi pilprov = (Provinsi) lis_prov.get(which);
+                        // Toast.makeText(getActivity(), "Pilih Provinsi ID : "+pilprov.getId_prov()+" - "+pilprov.getNama_prov(), Toast.LENGTH_SHORT).show();
+                        kode_prov.setText(String.valueOf(pilprov.getId_prov()));
+                        nama_prov.setText(String.valueOf(pilprov.getNama_prov()));
+                        kode_kab.setText("");
+                        nama_kab.setText("");
+                        kode_kec.setText("");
+                        nama_kec.setText("");
+                        kode_desa.setText("");
+                        nama_desa.setText("");
+                    }
+                });
+                dialogProv.create().show();
+            }
+        });
+
+        // pilih kabupaten
+        btn_kab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(kode_prov.getText().toString().length() > 0)
+                {
+                    RealmResults<Kabupaten> prov = realm.getDefaultInstance().where(Kabupaten.class).equalTo("province_id", Integer.parseInt(kode_prov.getText().toString())).findAll();
+                    final List<Kabupaten> list_kab = realm.getDefaultInstance().copyFromRealm(prov);
+                    final AlertDialog.Builder dialogKab = new AlertDialog.Builder(getActivity());
+                    dialogKab.setTitle("Pilih Kabupaten");
+                    final ArrayAdapter<Kabupaten> adapterKab = new ArrayAdapter<Kabupaten>(getActivity(), android.R.layout.select_dialog_singlechoice);
+                    adapterKab.addAll(list_kab);
+                    adapterKab.notifyDataSetChanged();
+                    dialogKab.setAdapter(adapterKab, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Kabupaten pilkab = (Kabupaten) list_kab.get(which);
+                            kode_kab.setText(String.valueOf(pilkab.getId()));
+                            nama_kab.setText(String.valueOf(pilkab.getName()));
+                            kode_kec.setText("");
+                            nama_kec.setText("");
+                            kode_desa.setText("");
+                            nama_desa.setText("");
+                        }
+                    });
+                    dialogKab.create().show();
+                } else {
+                    buatPesanJendela("Kesalahan", "Provinsi belum dipilih");
+                }
+            }
+        });
+
+        // pilih kecamatan
+        btn_kec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(kode_kab.getText().toString().length() > 0){
+                    RealmResults<Kecamatan> kecamatan = realm.getDefaultInstance().where(Kecamatan.class).equalTo("regency_id", Integer.parseInt(kode_kab.getText().toString())).findAll();
+                    final List<Kecamatan> list_kec = realm.getDefaultInstance().copyFromRealm(kecamatan);
+                    final AlertDialog.Builder dialogKec = new AlertDialog.Builder(getActivity());
+                    dialogKec.setTitle("Pilih Kecamatan");
+                    final ArrayAdapter<Kecamatan> adapterKec = new ArrayAdapter<Kecamatan>(getActivity(), android.R.layout.select_dialog_singlechoice);
+                    adapterKec.addAll(list_kec);
+                    adapterKec.notifyDataSetChanged();
+                    dialogKec.setAdapter(adapterKec, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Kecamatan pilkec = (Kecamatan) list_kec.get(which);
+                            kode_kec.setText(String.valueOf(pilkec.getId()));
+                            nama_kec.setText(String.valueOf(pilkec.getName()));
+                            kode_desa.setText("");
+                            nama_desa.setText("");
+                        }
+                    });
+                    dialogKec.create().show();
+                } else {
+                    buatPesanJendela("Kesalahan", "Kabupaten / Kota belum dipilih");
+                }
+            }
+        });
+
+        // pilih desa
+        btn_desa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(kode_kec.getText().toString().length() > 0){
+                    RealmResults<Desa> desa = realm.getDefaultInstance().where(Desa.class).equalTo("district_id", Long.parseLong(kode_kec.getText().toString())).findAll();
+                    final List<Desa> list_desa = realm.getDefaultInstance().copyFromRealm(desa);
+                    final AlertDialog.Builder dialogDesa = new AlertDialog.Builder(getActivity());
+                    dialogDesa.setTitle("Pilih Desa");
+                    final ArrayAdapter<Desa> adapterDesa = new ArrayAdapter<Desa>(getActivity(), android.R.layout.select_dialog_singlechoice);
+                    adapterDesa.addAll(list_desa);
+                    adapterDesa.notifyDataSetChanged();
+                    dialogDesa.setAdapter(adapterDesa, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Desa pildesa = (Desa) list_desa.get(which);
+                            kode_desa.setText(String.valueOf(pildesa.getId()));
+                            nama_desa.setText(String.valueOf(pildesa.getName()));
+                        }
+                    });
+                    dialogDesa.create().show();
+                } else {
+                    buatPesanJendela("Kesalahan", "Kecamatan belum dipilih");
+                }
+            }
+        });
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setView(promptsView);
+        alertDialogBuilder.setTitle("Edit " + dp.getTempat());
+        alertDialogBuilder.setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialogBuilder.create().show();
+
+
+    }
+
 
     private void lihatData(DataProspek dp) {
         final View promptsView;
@@ -990,7 +1212,7 @@ public class ListDataFragment extends Fragment  {
         final Spinner konsul1 = (Spinner) promptsView.findViewById(R.id.konsultan1);
         final Spinner konsul2 = (Spinner) promptsView.findViewById(R.id.konsultan2);
 
-        final TextView tvTgl =(TextView) promptsView.findViewById(tgl_presentasi);
+        final TextView tvTgl =(TextView) promptsView.findViewById(R.id.tgl_presentasi);
         final TextView tvJam =(TextView) promptsView.findViewById(R.id.jam_presentasi);
 
         final Button btnDatePicker=(Button) promptsView.findViewById(R.id.btn_datep);

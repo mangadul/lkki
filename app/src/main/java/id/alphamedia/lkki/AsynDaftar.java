@@ -28,7 +28,7 @@ class AsynDaftar extends AsyncTask<String, Void, String> {
     }
 
     public AsyncDaftarResponse delegate = null;
-    public String uname, upass, imei;
+    public String imei;
 
     final Request request;
     final OkHttpClient client;
@@ -54,6 +54,7 @@ class AsynDaftar extends AsyncTask<String, Void, String> {
 
         HashMap<String, String> param = new HashMap<>();
         param.put( "nama", reg.get(0).getNama());
+        param.put( "username", reg.get(0).getUsername());
         param.put( "no_hp", reg.get(0).getNo_hp());
         param.put( "email", reg.get(0).getEmail());
         param.put( "imei", reg.get(0).getImei());
