@@ -51,8 +51,7 @@
                     android:layout_toLeftOf="@+id/rw"
                     android:layout_weight=".50"
                     android:hint="@string/rt"
-                    android:textIsSelectable="true"
-                    android:inputType="none" />
+                    android:inputType="number" />
 
                 <EditText
                     android:id="@+id/edit_rw"
@@ -61,8 +60,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_weight=".50"
                     android:hint="@string/rw"
-                    android:textIsSelectable="true"
-                    android:inputType="none" />
+                    android:inputType="number" />
             </LinearLayout>
         </RelativeLayout>
 
@@ -102,7 +100,7 @@
 
                 <Button
                     android:layout_height="match_parent"
-                    android:text="Pilih"
+                    android:text="Prov"
                     android:layout_width="70dp"
                     android:id="@+id/btn_prov"
                     android:layout_toRightOf="@+id/nama_prov"
@@ -143,7 +141,7 @@
 
                 <Button
                     android:layout_height="match_parent"
-                    android:text="Pilih"
+                    android:text="Kab"
                     android:layout_width="70dp"
                     android:id="@+id/btn_kab"
                     android:layout_toRightOf="@+id/nama_kab"
@@ -184,7 +182,7 @@
 
                 <Button
                     android:layout_height="match_parent"
-                    android:text="Pilih"
+                    android:text="Kec"
                     android:layout_width="70dp"
                     android:id="@+id/btn_kec"
                     android:layout_toRightOf="@+id/nama_kec"
@@ -226,7 +224,7 @@
 
                 <Button
                     android:layout_height="match_parent"
-                    android:text="Pilih"
+                    android:text="Desa"
                     android:layout_width="70dp"
                     android:id="@+id/btn_desa"
                     android:layout_toRightOf="@+id/nama_desa"
@@ -302,7 +300,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tanggal"
+                android:text="Tgl"
                 android:id="@+id/btn_tanggal"
                 android:layout_alignBottom="@+id/edit_tgl_penyuluhan"
                 android:layout_toRightOf="@+id/edit_tgl_penyuluhan"

@@ -37,7 +37,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -46,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -70,7 +68,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,6 +101,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 
 import static id.alphamedia.lkki.BaseFragment.ARGS_INSTANCE;
+import static id.alphamedia.lkki.R.id.tgl_kirim;
 import static io.realm.Realm.getDefaultInstance;
 
 
@@ -375,10 +373,11 @@ public class ListDataFragment extends Fragment  {
         super.onPause();
     }
 
-    private void editData(DataProspek dp){
+    private void editData(final DataProspek dp){
         final View promptsView;
         final LayoutInflater li = getActivity().getLayoutInflater();
         promptsView = li.inflate(R.layout.edit_data, null);
+        final long idp = dp.getId_prospek();
 
         final TextView edit_tempat = (TextView) promptsView.findViewById(R.id.edit_tempat);
         final TextView edit_catatan = (TextView) promptsView.findViewById(R.id.edit_catatan);
@@ -396,6 +395,39 @@ public class ListDataFragment extends Fragment  {
         final TextView lokasi_long = (TextView) promptsView.findViewById(R.id.lokasi_long);
         final TextView edit_tgl_penyuluhan = (TextView) promptsView.findViewById(R.id.edit_tgl_penyuluhan);
         final TextView edit_jam_penyuluhan = (TextView) promptsView.findViewById(R.id.edit_jam_penyuluhan);
+
+        String jabatan = (dp.getJabatan() == null) ? "" : dp.getJabatan();
+        edit_jabatan.setText(jabatan);
+        String tempat = dp.getTempat();
+        edit_tempat.setText(tempat);
+        String alamat = dp.getJalan() == null ? "" : dp.getJalan();
+        edit_jalan.setText(alamat);
+        String catatan = dp.getCatatan() == null ? "" : dp.getCatatan();
+        edit_catatan.setText(catatan);
+        String durasi = String.valueOf(dp.getDurasi()) == null
+                || String.valueOf(dp.getDurasi()).matches("null")
+                || String.valueOf(dp.getDurasi()).matches("")
+                ? "" : String.valueOf(dp.getDurasi());
+        edit_durasi.setText(durasi);
+
+        String kelurahan = dp.getKelurahan() == null ? "" : dp.getKelurahan();
+        edit_kelurahan.setText(kelurahan);
+        String rt = dp.getRt() == null ? "" : dp.getRt();
+        edit_rt.setText(rt);
+        String rw = dp.getRw() == null ? "" : dp.getRw();
+        edit_rw.setText(rw);
+        String lati = dp.getLokasi_lat() == null ? "" : dp.getLokasi_lat();
+        lokasi_lat.setText(lati);
+        String longi = dp.getLokasi_long() == null ? "" : dp.getLokasi_long();
+        lokasi_long.setText(longi);
+        String email = dp.getEmail() == null ? "" : dp.getEmail();
+        edit_email.setText(email);
+        String nama = dp.getNama() == null ? "" : dp.getNama();
+        edit_nama.setText(nama);
+        final String nohp = dp.getNo_hp() == null ? "" : dp.getNo_hp();
+        edit_nohp.setText(nohp);
+        String nokantor = dp.getNo_kantor() == null ? "" : dp.getNo_kantor();
+        edit_nokantor.setText(nokantor);
 
         // button
         Button btn_provinsi = (Button) promptsView.findViewById(R.id.btn_prov);
@@ -462,6 +494,57 @@ public class ListDataFragment extends Fragment  {
         final TextView nama_kec  = (TextView) promptsView.findViewById(R.id.nama_kec);
         final TextView kode_desa  = (TextView) promptsView.findViewById(R.id.kode_desa);
         final TextView nama_desa  = (TextView) promptsView.findViewById(R.id.nama_desa);
+
+        String kodeprov = ( dp.getProvinsi() == null ) ? "" : dp.getProvinsi();
+        if(kodeprov.length() > 0)
+        {
+            Provinsi namaprov = realm.getDefaultInstance().where(Provinsi.class).equalTo("id", Integer.parseInt(kodeprov)).findFirst();
+            if(namaprov != null) nama_prov.setText(namaprov.getNama_prov());
+            kode_prov.setText(kodeprov);
+        } else {
+            kode_prov.setText("");
+            nama_prov.setText("");
+        }
+
+        String kodekab = (dp.getKota() == null || dp.getKota().matches("0")) ? "" : dp.getKota();
+        if(kodekab.length() > 0) {
+            Kabupaten namakab = realm.getDefaultInstance().where(Kabupaten.class).equalTo("id", Integer.parseInt(kodekab)).findFirst();
+            if(namakab != null) nama_kab.setText(namakab.getName());
+            kode_kab.setText(kodekab);
+        } else {
+            kode_kab.setText("");
+            nama_kab.setText("");
+        }
+
+        String kodekec = (dp.getKecamatan() == null || dp.getKecamatan().matches("0")) ? "" : dp.getKecamatan();
+        if(kodekec.length() > 0)
+        {
+            Kecamatan namakec = realm.getDefaultInstance().where(Kecamatan.class).equalTo("id", Integer.parseInt(kodekec)).findFirst();
+            if(namakec != null) nama_kec.setText(namakec.getName());
+            kode_kec.setText(kodekec);
+        } else {
+            kode_kec.setText("");
+            nama_kec.setText("");
+        }
+
+        String kodedesa = (dp.getDesa() == null || dp.getDesa().matches("0")) ? "" : dp.getDesa();
+        if(kodedesa.length() > 0) {
+            Desa namadesa = realm.getDefaultInstance().where(Desa.class).equalTo("id", Long.parseLong(kodedesa)).findFirst();
+            if(namadesa != null) nama_desa.setText(namadesa.getName());
+            kode_desa.setText(kodedesa);
+        }
+
+        Date tgl_penyuluhan = (dp.getTgl_penyuluhan() == null
+                || String.valueOf(dp.getTgl_penyuluhan()).matches("")
+                || String.valueOf(dp.getTgl_penyuluhan()).matches("null")) ? null : dp.getTgl_penyuluhan();
+        String jam_penyuluhan = (dp.getWaktu_penyuluhan() == null
+                || dp.getWaktu_penyuluhan().matches("")
+                || dp.getWaktu_penyuluhan().matches("null")) ? "" : dp.getWaktu_penyuluhan();
+
+        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        if(tgl_penyuluhan != null) edit_tgl_penyuluhan.setText(format1.format(tgl_penyuluhan));
+            else edit_tgl_penyuluhan.setText("");
+        edit_jam_penyuluhan.setText(jam_penyuluhan);
 
         // pilih provinsi
         btn_provinsi.setOnClickListener(new View.OnClickListener() {
@@ -587,7 +670,41 @@ public class ListDataFragment extends Fragment  {
         alertDialogBuilder.setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                     @Override
+                     public void execute(Realm bgRealm) {
+                         DataProspek dpss = getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
+                         dpss.setTempat(String.valueOf(edit_tempat.getText().toString()));
+                         dpss.setJalan(String.valueOf(edit_jalan.getText().toString()));
+                         dpss.setRt(String.valueOf(edit_rt.getText().toString()));
+                         dpss.setRw(String.valueOf(edit_rw.getText().toString()));
+                         dpss.setKelurahan(String.valueOf(edit_kelurahan.getText().toString()));
+                         dpss.setDesa(String.valueOf(kode_desa.getText().toString()));
+                         dpss.setKecamatan(String.valueOf(kode_kec.getText().toString()));
+                         dpss.setKota(String.valueOf(kode_kab.getText().toString()));
+                         dpss.setProvinsi(String.valueOf(kode_prov.getText().toString()));
+                         String tgl_penyuluhan = String.valueOf(edit_tgl_penyuluhan.getText().toString());
+                         String jam_penyuluhan = String.valueOf(edit_jam_penyuluhan.getText().toString());
+                         Date penyuluhan = Commons.toDate(tgl_penyuluhan +" "+jam_penyuluhan);
+                         dpss.setTgl_penyuluhan(penyuluhan);
+                         dpss.setWaktu_penyuluhan(jam_penyuluhan);
+                         dpss.setNama_pencatat(param_nama);
+                         dpss.setNik_pencatat(param_nik);
+                         dpss.setDurasi(Integer.parseInt(edit_durasi.getText().toString()));
+                         dpss.setNama(String.valueOf(edit_nama.getText().toString()));
+                         dpss.setJabatan(String.valueOf(edit_jabatan.getText().toString()));
+                         dpss.setNo_hp(String.valueOf(edit_nohp.getText().toString()));
+                         dpss.setNo_kantor(String.valueOf(edit_nokantor.getText().toString()));
+                         dpss.setEmail(String.valueOf(edit_email.getText().toString()));
+                         dpss.setCatatan(String.valueOf(edit_catatan.getText().toString()));
+                         getDefaultInstance().insertOrUpdate(dpss);
+                     }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        buatPesanJendela("Update Sukses", "Data berhasil diupdate");
+                    }
+                });
             }
         });
         alertDialogBuilder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
@@ -597,8 +714,6 @@ public class ListDataFragment extends Fragment  {
             }
         });
         alertDialogBuilder.create().show();
-
-
     }
 
 
@@ -608,6 +723,7 @@ public class ListDataFragment extends Fragment  {
         promptsView = li.inflate(R.layout.detail_view, null);
 
         ImageView iv_peta = (ImageView) promptsView.findViewById(R.id.peta_lokasi);
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MM-yyyy HH:mm:ss", Locale.getDefault());
 
         // head
         TextView head_tgl_presentasi = (TextView) promptsView.findViewById(R.id.head_tgl_presentasi);
@@ -626,26 +742,27 @@ public class ListDataFragment extends Fragment  {
         {
             head_tgl_update_server.setText("Refresh utk melihat tgl update server");
         } else {
-            head_tgl_update_server.setText(dp.getTgl_dikirim().toString());
+            head_tgl_update_server.setText(sdf.format(dp.getTgl_dikirim()));
         }
 
         // tanggal pengiriman kurir
         if(dp.getKurir_tgl_kirim() == null
-            || dp.getKurir_tgl_kirim().matches("")
-            || dp.getKurir_tgl_kirim().matches("null"))
+            || dp.getKurir_tgl_kirim().toString().matches("")
+            || dp.getKurir_tgl_kirim().toString().matches("null"))
         {
             head_tgl_kirim.setText("Belum ditentukan");
         } else {
-            head_tgl_kirim.setText(dp.getKurir_tgl_kirim());
+            head_tgl_kirim.setText(sdf.format(dp.getKurir_tgl_kirim()));
         }
 
         // tanggal penyuluhan
         if(dp.getTgl_penyuluhan() != null) {
-            String tgl_presentasi = dp.getTgl_penyuluhan().toString().matches("")
+            Date tgl_presentasi = dp.getTgl_penyuluhan().toString().matches("")
                     || dp.getTgl_penyuluhan().toString().matches("null") ?
-                    "Belum ditentukan"
-                    : dp.getTgl_penyuluhan().toString();
-            head_tgl_presentasi.setText(tgl_presentasi);
+                    null
+                    : dp.getTgl_penyuluhan();
+            if(tgl_presentasi == null) head_tgl_presentasi.setText("Belum ditentukan");
+                else head_tgl_presentasi.setText(sdf.format(tgl_presentasi));
         } else {
             head_tgl_presentasi.setText("Belum ditentukan");
         }
@@ -670,7 +787,8 @@ public class ListDataFragment extends Fragment  {
                 else head_kurir.setText("Belum dipilih");
         }
 
-        head_tgl_catat.setText(dp.getTgl_catat().toString());
+
+        head_tgl_catat.setText(sdf.format(dp.getTgl_catat()));
         head_pendata.setText(dp.getNama_pencatat());
         head_nama_tempat.setText(dp.getTempat());
         head_catatan.setText(dp.getCatatan());
@@ -696,7 +814,7 @@ public class ListDataFragment extends Fragment  {
             info_desa.setText("Desa <Belum dipilih>");
         } else {
             Desa desa = realm.getDefaultInstance().where(Desa.class).equalTo("id", Long.parseLong(dp.getDesa())).findFirst();
-            if(desa != null) info_desa.setText("Desa " + desa.getName());
+            if(desa != null) info_desa.setText("Desa / Kelurahan" + desa.getName());
                 else info_desa.setText("Desa <Belum dipilih>");
         }
 
@@ -1041,10 +1159,14 @@ public class ListDataFragment extends Fragment  {
         View promptsView = li.inflate(R.layout.pilih_kurir, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setView(promptsView);
-        alertDialogBuilder.setTitle("Pilih Kurir :: " + dataProspek.getTempat());
-        alertDialogBuilder.setIcon(R.drawable.ic_airport_shuttle_black_36dp);
-        final Spinner spinkurir = (Spinner) promptsView.findViewById(R.id.kurir);
-        final TextView tvTanggal =(TextView) promptsView.findViewById(R.id.tgl_kirim);
+        alertDialogBuilder.setTitle("Pilih Kurir " + dataProspek.getTempat());
+        // alertDialogBuilder.setIcon(R.drawable.ic_airport_shuttle_black_36dp);
+
+        final TextView kode_kurir =(TextView) promptsView.findViewById(R.id.kode_kurir);
+        final TextView nama_kurir =(TextView) promptsView.findViewById(R.id.nama_kurir);
+        final Button btn_kurir =(Button) promptsView.findViewById(R.id.btn_pilih_kurir);
+
+        final TextView tvTanggal =(TextView) promptsView.findViewById(tgl_kirim);
         final TextView tvOrder =(TextView) promptsView.findViewById(R.id.jml_order);
         final Button btnTanggal =(Button) promptsView.findViewById(R.id.btn_tanggal);
 
@@ -1052,12 +1174,15 @@ public class ListDataFragment extends Fragment  {
         final Button btnJam =(Button) promptsView.findViewById(R.id.btn_jam);
 
         final long idp = dataProspek.getId_prospek();
-
-        String tgl_kirim = (dataProspek.getTgl_dikirim()== null || String.valueOf(dataProspek.getTgl_dikirim()).matches("")) ? "" : String.valueOf(dataProspek.getTgl_dikirim());
-        int jml_order = (dataProspek.getJmlorder() <= 0 || String.valueOf(dataProspek.getJmlorder()).matches("")) ? 0 : dataProspek.getJmlorder();
+        SimpleDateFormat format_tgl = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat format_jam = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String tgl_kirim = (dataProspek.getKurir_tgl_kirim()== null || String.valueOf(dataProspek.getKurir_tgl_kirim()).matches("")) ? "" : format_tgl.format(dataProspek.getKurir_tgl_kirim());
+        String jam_kirim = (dataProspek.getKurir_tgl_kirim()== null || String.valueOf(dataProspek.getKurir_tgl_kirim()).matches("")) ? "" : format_jam.format(dataProspek.getKurir_tgl_kirim());
+        int jml_order = (dataProspek.getJmlorder() <= 0 || String.valueOf(dataProspek.getJmlorder()).matches("") || String.valueOf(dataProspek.getJmlorder()).matches("null")) ? 0 : dataProspek.getJmlorder();
 
         tvTanggal.setText(tgl_kirim);
         tvOrder.setText(String.valueOf(jml_order));
+        tvJam.setText(jam_kirim);
 
         btnTanggal.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1106,23 +1231,37 @@ public class ListDataFragment extends Fragment  {
             }
         });
 
-        RealmResults<Kurir> reskurir = getDefaultInstance().where(Kurir.class).findAll();
-        List<Kurir> listkurir = getDefaultInstance().copyFromRealm(reskurir);
-
-        SpinnerKurirAdapter adapterkurir = new SpinnerKurirAdapter(listkurir);
-        spinkurir.setAdapter(adapterkurir);
-        adapterkurir.notifyDataSetChanged();
-
-        spinkurir.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(final AdapterView<?> parent, View view, int position, final long id) {
-                Kurir kurir = (Kurir) parent.getSelectedItem();
-                setPilkurir(kurir.getId_kurir());
+        if(dataProspek.getKurir() > 0)
+        {
+            Kurir kurir = getDefaultInstance().where(Kurir.class).equalTo("id_kurir", dataProspek.getKurir()).findFirst();
+            if(kurir == null) {
+                kode_kurir.setText("");
+                nama_kurir.setText("");
+            } else {
+                kode_kurir.setText(String.valueOf(kurir.getId_kurir()));
+                nama_kurir.setText(String.valueOf(kurir.getNama_kurir()));
             }
+        }
 
+        btn_kurir.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public void onClick(View v) {
+                RealmResults<Kurir> kurirs = realm.getDefaultInstance().where(Kurir.class).findAll();
+                final List<Kurir> list_kurir = realm.getDefaultInstance().copyFromRealm(kurirs);
+                final AlertDialog.Builder dialogkurir = new AlertDialog.Builder(getActivity());
+                dialogkurir.setTitle("Pilih Kurir");
+                final ArrayAdapter<Kurir> adapterKurir = new ArrayAdapter<Kurir>(getActivity(), android.R.layout.select_dialog_singlechoice);
+                adapterKurir.addAll(list_kurir);
+                adapterKurir.notifyDataSetChanged();
+                dialogkurir.setAdapter(adapterKurir, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Kurir pilkurir = (Kurir) list_kurir.get(which);
+                        kode_kurir.setText(String.valueOf(pilkurir.getId_kurir()));
+                        nama_kurir.setText(pilkurir.getNama_kurir());
+                    }
+                });
+                dialogkurir.create().show();
             }
         });
 
@@ -1134,25 +1273,18 @@ public class ListDataFragment extends Fragment  {
                 getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm bgRealm) {
-                        int pilkurir = 0;
-                        pilkurir = getPilkurir();
                         DataProspek dpss = getDefaultInstance().where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
                         if (!tvOrder.getText().toString().matches("")
                                 && !tvTanggal.getText().toString().matches("")) {
-                            dpss.setKurir(pilkurir);
+                            dpss.setKurir(Integer.parseInt(kode_kurir.getText().toString()));
                             String tanggal_kirim = (tvTanggal.getText().toString().matches("")) ? "" : tvTanggal.getText().toString();
                             String jam_kirim = (tvJam.getText().toString().matches("")) ? "00:00:00" : tvJam.getText().toString();
                             String waktu = tanggal_kirim + " " + jam_kirim;
-                            Log.i(TAG, "Tanggal kirim: "+ waktu);
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            if(!tanggal_kirim.matches("")) {
-                                try {
-                                    String tgl = sdf.format(sdf.parse(waktu));
-                                    Date tgl_kurir = sdf.parse(tgl.toString());
-                                    dpss.setKurir_tgl_kirim(tgl_kurir.toString());
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
+                            // Log.i(TAG, "Tanggal kirim: "+ waktu);
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                            if(tanggal_kirim.matches("")) {
+                            } else {
+                                dpss.setKurir_tgl_kirim(Commons.toDate(waktu));
                             }
                             dpss.setJmlorder(Integer.parseInt(tvOrder.getText().toString()));
                         }
@@ -1202,15 +1334,90 @@ public class ListDataFragment extends Fragment  {
     }
 
     private void pilihKonsultan(final DataProspek dp){
-
         LayoutInflater li = getActivity().getLayoutInflater();
         View promptsView = li.inflate(R.layout.pilih_penyuluh, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setView(promptsView);
-        alertDialogBuilder.setTitle("Pilih Konsultan :: " + dp.getTempat());
-        alertDialogBuilder.setIcon(R.drawable.ic_account_box_black_36dp);
-        final Spinner konsul1 = (Spinner) promptsView.findViewById(R.id.konsultan1);
-        final Spinner konsul2 = (Spinner) promptsView.findViewById(R.id.konsultan2);
+        alertDialogBuilder.setTitle("Pilih Konsultan " + dp.getTempat());
+        // alertDialogBuilder.setIcon(R.drawable.ic_account_box_black_36dp);
+
+        final TextView kode_konsul1 =(TextView) promptsView.findViewById(R.id.kode_konsul1);
+        final TextView nama_konsul1 =(TextView) promptsView.findViewById(R.id.nama_konsul1);
+        final Button btn_konsul1 =(Button) promptsView.findViewById(R.id.btn_konsul1);
+
+        if(dp.getKonsultan1() == null || dp.getKonsultan1().matches("") || dp.getKonsultan1().matches("null"))
+        {
+            kode_konsul1.setText("");
+            nama_konsul1.setText("");
+        } else {
+            Konsultan konsultan = getDefaultInstance().where(Konsultan.class).equalTo("id_konsultan", Integer.parseInt(dp.getKonsultan1())).findFirst();
+            if(konsultan == null) {
+            } else {
+                kode_konsul1.setText(String.valueOf(konsultan.getId_konsultan()));
+                nama_konsul1.setText(String.valueOf(konsultan.getNama_konsultan()));
+            }
+        }
+
+        btn_konsul1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RealmResults<Konsultan> konsulten = realm.getDefaultInstance().where(Konsultan.class).findAll();
+                final List<Konsultan> list_konsul1 = realm.getDefaultInstance().copyFromRealm(konsulten);
+                final AlertDialog.Builder dialogKonsul1 = new AlertDialog.Builder(getActivity());
+                dialogKonsul1.setTitle("Pilih Konsultan");
+                final ArrayAdapter<Konsultan> adapterKonsul1 = new ArrayAdapter<Konsultan>(getActivity(), android.R.layout.select_dialog_singlechoice);
+                adapterKonsul1.addAll(list_konsul1);
+                adapterKonsul1.notifyDataSetChanged();
+                dialogKonsul1.setAdapter(adapterKonsul1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Konsultan pilkonsul1 = (Konsultan) list_konsul1.get(which);
+                        kode_konsul1.setText(String.valueOf(pilkonsul1.getId_konsultan()));
+                        nama_konsul1.setText(pilkonsul1.getNama_konsultan());
+                    }
+                });
+                dialogKonsul1.create().show();
+            }
+        });
+
+        final TextView kode_konsul2 = (TextView) promptsView.findViewById(R.id.kode_konsul2);
+        final TextView nama_konsul2 = (TextView) promptsView.findViewById(R.id.nama_konsul2);
+        final Button btn_konsul2 = (Button) promptsView.findViewById(R.id.btn_konsul2);
+
+        if(dp.getKonsultan2() == null || dp.getKonsultan2().matches("") || dp.getKonsultan2().matches("null"))
+        {
+            kode_konsul2.setText("");
+            nama_konsul2.setText("");
+        } else {
+            Konsultan konsultan = getDefaultInstance().where(Konsultan.class).equalTo("id_konsultan", Integer.parseInt(dp.getKonsultan2())).findFirst();
+            if(konsultan == null) {
+            } else {
+                kode_konsul2.setText(String.valueOf(konsultan.getId_konsultan()));
+                nama_konsul2.setText(String.valueOf(konsultan.getNama_konsultan()));
+            }
+        }
+
+        btn_konsul2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RealmResults<Konsultan> pendamping = realm.getDefaultInstance().where(Konsultan.class).findAll();
+                final List<Konsultan> list_pendamping = realm.getDefaultInstance().copyFromRealm(pendamping);
+                final AlertDialog.Builder dialogKonsul2 = new AlertDialog.Builder(getActivity());
+                dialogKonsul2.setTitle("Pilih Pendamping Konsultan");
+                final ArrayAdapter<Konsultan> adapterKonsul2 = new ArrayAdapter<Konsultan>(getActivity(), android.R.layout.select_dialog_singlechoice);
+                adapterKonsul2.addAll(list_pendamping);
+                adapterKonsul2.notifyDataSetChanged();
+                dialogKonsul2.setAdapter(adapterKonsul2, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Konsultan pilkonsul2 = (Konsultan) list_pendamping.get(which);
+                        kode_konsul2.setText(String.valueOf(pilkonsul2.getId_konsultan()));
+                        nama_konsul2.setText(pilkonsul2.getNama_konsultan());
+                    }
+                });
+                dialogKonsul2.create().show();
+            }
+        });
 
         final TextView tvTgl =(TextView) promptsView.findViewById(R.id.tgl_presentasi);
         final TextView tvJam =(TextView) promptsView.findViewById(R.id.jam_presentasi);
@@ -1220,8 +1427,8 @@ public class ListDataFragment extends Fragment  {
 
         final DataProspek dps = dp;
         final long idp = dps.getId_prospek();
-
-        String tgl_penyuluh = (String.valueOf(dp.getTgl_penyuluhan()) == null || String.valueOf(dp.getTgl_penyuluhan()).matches("")) ? "" : String.valueOf(dp.getTgl_penyuluhan());
+        SimpleDateFormat format_tgl = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String tgl_penyuluh = (dp.getTgl_penyuluhan() == null || String.valueOf(dp.getTgl_penyuluhan()).matches("")) ? "" : format_tgl.format(dp.getTgl_penyuluhan());
         String jam_penyuluh =  (dp.getWaktu_penyuluhan()==null || dp.getWaktu_penyuluhan().matches("")) ? "" : dp.getWaktu_penyuluhan();
         tvTgl.setText(tgl_penyuluh);
         tvJam.setText(jam_penyuluh);
@@ -1273,75 +1480,6 @@ public class ListDataFragment extends Fragment  {
             }
         });
 
-        // spinner konsultan
-        // List<Konsultan> spinkonsul = new ArrayList<>();
-        // RealmResults<Konsultan> resultKonsul = null;
-        RealmResults<Konsultan> resultKonsul = getDefaultInstance().where(Konsultan.class).findAll();
-        List<Konsultan> spinkonsul = getDefaultInstance().copyFromRealm(resultKonsul);
-
-        SpinnerKonsultanAdapter isiadapter = new SpinnerKonsultanAdapter(spinkonsul);
-        konsul1.setAdapter(isiadapter);
-        isiadapter.notifyDataSetChanged();
-
-
-        // ArrayAdapter<Konsultan> adapter1 = new ArrayAdapter<Konsultan>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, spinkonsul);
-            // adapter1.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-
-        konsul1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(final AdapterView<?> parent, View view, int position, final long id) {
-                getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm bgRealm) {
-                        DataProspek dp1 = bgRealm.where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
-                        Konsultan kons = (Konsultan) parent.getSelectedItem();
-                        dp1.setKonsultan1(String.valueOf(kons.getId_konsultan()));
-                        getDefaultInstance().insertOrUpdate(dp1);
-                    }
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-                        // buatPesanJendela("Sukses", "Data pemilihan Konsultan berhasil diupdate");
-                    }
-                });
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
-        // ArrayAdapter<Konsultan> adapter2 = new ArrayAdapter<Konsultan>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, spinkonsul);
-        konsul2.setAdapter(isiadapter);
-        isiadapter.notifyDataSetChanged();
-        konsul2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(final AdapterView<?> parent, View view, int position, long id) {
-                getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm bgRealm) {
-                        DataProspek dp2 = bgRealm.where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
-                        Konsultan kons2 = (Konsultan) parent.getSelectedItem();
-                        dp2.setKonsultan2(String.valueOf(kons2.getId_konsultan()));
-                        getDefaultInstance().insertOrUpdate(dp2);
-                    }
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-                        // buatPesanJendela("Sukses", "Data pemilihan Pendamping Konsultan berhasil diupdate");
-                    }
-                });
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
         alertDialogBuilder.setCancelable(false);
 
         alertDialogBuilder.setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
@@ -1353,7 +1491,8 @@ public class ListDataFragment extends Fragment  {
                         DataProspek dpss = bgRealm.where(DataProspek.class).equalTo("id_prospek", idp).findFirst();
                         if (!tvTgl.getText().toString().matches("") && !tvJam.getText().toString().matches("")) {
                             String tanggal_penyuluhan = tvTgl.getText().toString() + " " + tvJam.getText().toString();
-                            // Commons.toDate(tvTgl.getText().toString())
+                            dpss.setKonsultan1(String.valueOf(kode_konsul1.getText().toString()));
+                            dpss.setKonsultan2(String.valueOf(kode_konsul2.getText().toString()));
                             dpss.setTgl_penyuluhan(Commons.toDate(tanggal_penyuluhan));
                             dpss.setWaktu_penyuluhan(tvJam.getText().toString());
                         }
@@ -1376,11 +1515,6 @@ public class ListDataFragment extends Fragment  {
         });
 
         alertDialogBuilder.create().show();
-
-    /*
-    final AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    */
 
     }
 

@@ -85,11 +85,13 @@ public class FragmentInputData extends Fragment implements LocationListener, Vie
 
     Realm realm;
 
+    /*
     ArrayAdapter<Kabupaten> kabAdapter;
 
     List<Kabupaten> spinkab = null;
     List<Kecamatan> spinkec;
     List<Desa> spindesa;
+    */
 
     EditText tempat, nama, alamat, lokasi_lat, lokasi_long, durasi, jabatan;
     EditText nohp, nokantor, email, jalan, kelurahan, rt, rw, catatan;

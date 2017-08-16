@@ -5,10 +5,51 @@
     android:padding="5dp"
     android:layout_height="wrap_content">
 
+    <!--
     <Spinner
         android:id="@+id/kurir"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    -->
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/kurir"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1.0">
+
+            <EditText
+                android:id="@+id/kode_kurir"
+                android:layout_width="0dp"
+                android:textIsSelectable="true"
+                android:inputType="none"
+                android:layout_height="wrap_content"
+                android:layout_weight=".20" />
+
+            <EditText
+                android:id="@+id/nama_kurir"
+                android:layout_width="0dp"
+                android:textIsSelectable="true"
+                android:inputType="none"
+                android:layout_height="wrap_content"
+                android:layout_weight=".80"
+                android:hint="Nama Kurir" />
+
+            <Button
+                android:layout_height="match_parent"
+                android:text="Pilih"
+                android:layout_width="70dp"
+                android:id="@+id/btn_pilih_kurir"
+                android:layout_toRightOf="@+id/nama_kurir"
+                android:layout_toEndOf="@+id/nama_kurir" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
 
     <RelativeLayout

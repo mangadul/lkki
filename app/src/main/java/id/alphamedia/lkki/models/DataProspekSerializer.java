@@ -56,7 +56,7 @@ public class DataProspekSerializer  implements JsonSerializer<DataProspek> {
         jsonObject.addProperty("konsultan1", src.getKonsultan1()); //baru
         jsonObject.addProperty("konsultan2", src.getKonsultan2()); //baru
         jsonObject.addProperty("kurir", src.getKurir()); // baru
-        jsonObject.addProperty("kurir_tgl_kirim", src.getKurir_tgl_kirim()); // baru
+        jsonObject.addProperty("kurir_tgl_kirim", String.valueOf(src.getKurir_tgl_kirim())); // baru
         jsonObject.addProperty("jml_order", src.getJmlorder()); // baru
         return jsonObject;
     }

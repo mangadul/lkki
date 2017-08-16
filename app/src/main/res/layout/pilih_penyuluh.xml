@@ -4,18 +4,101 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <!--
     <Spinner
         android:id="@+id/konsultan1"
         android:hint="Pilih Konsultan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-
     <Spinner
         android:id="@+id/konsultan2"
         android:hint="Pilih Konsultan Pendamping"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    -->
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/konsultan1"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1.0">
+
+            <EditText
+                android:id="@+id/kode_konsul1"
+                android:layout_width="0dp"
+                android:textIsSelectable="true"
+                android:inputType="none"
+                android:layout_height="wrap_content"
+                android:layout_weight=".20" />
+
+            <EditText
+                android:id="@+id/nama_konsul1"
+                android:layout_width="0dp"
+                android:textIsSelectable="true"
+                android:inputType="none"
+                android:layout_height="wrap_content"
+                android:layout_weight=".80"
+                android:hint="Nama Konsultan" />
+
+            <Button
+                android:layout_height="match_parent"
+                android:text="Konsultan"
+                android:layout_width="70dp"
+                android:id="@+id/btn_konsul1"
+                android:layout_toRightOf="@+id/nama_konsul1"
+                android:layout_toEndOf="@+id/nama_konsul1" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!-- konsultan pendamping -->
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/konsultan2"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1.0">
+
+            <EditText
+                android:id="@+id/kode_konsul2"
+                android:layout_width="0dp"
+                android:textIsSelectable="true"
+                android:inputType="none"
+                android:layout_height="wrap_content"
+                android:layout_weight=".20" />
+
+            <EditText
+                android:id="@+id/nama_konsul2"
+                android:layout_width="0dp"
+                android:textIsSelectable="true"
+                android:inputType="none"
+                android:layout_height="wrap_content"
+                android:layout_weight=".80"
+                android:hint="Pendamping Konsultan" />
+
+            <Button
+                android:layout_height="match_parent"
+                android:text="Pendamping"
+                android:layout_width="70dp"
+                android:id="@+id/btn_konsul2"
+                android:layout_toRightOf="@+id/nama_konsul2"
+                android:layout_toEndOf="@+id/nama_konsul2" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
 
     <RelativeLayout
         android:layout_height="match_parent"

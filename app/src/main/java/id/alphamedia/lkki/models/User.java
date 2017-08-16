@@ -42,4 +42,9 @@ public class User extends RealmObject {
     void setSession(String session){ this.session = session;}
     String getSession() { return session; }
 
+    @Override
+    public String toString() {
+        return nama;
+    }
+
 }

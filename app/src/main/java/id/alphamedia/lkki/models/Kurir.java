@@ -31,4 +31,9 @@ public class Kurir extends RealmObject {
     public String getNohp_kurir() { return nohp_kurir; }
     public void setNohp_kurir(String nohp_kurir) { this.nohp_kurir = nohp_kurir; }
 
+    @Override
+    public String toString() {
+        return nama_kurir;
+    }
+
 }

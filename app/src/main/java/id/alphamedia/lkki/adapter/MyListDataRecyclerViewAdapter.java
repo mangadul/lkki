@@ -14,8 +14,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import id.alphamedia.lkki.R;
@@ -87,11 +89,26 @@ public class MyListDataRecyclerViewAdapter
 
         final DataProspek dp = mValues.get(position);
         posisi = position;
+        Desa desa_kel = null;
+        Kecamatan kecamatan = null;
+        Kabupaten kab = null;
+        Provinsi provinsi = null;
 
-        Desa desa_kel = realm.where(Desa.class).equalTo("id", Long.parseLong(dp.getDesa())).findFirst();
-        Kecamatan kecamatan = realm.where(Kecamatan.class).equalTo("id", Integer.parseInt(dp.getKecamatan())).findFirst();
-        Kabupaten kab = realm.where(Kabupaten.class).equalTo("id", Integer.parseInt(dp.getKota())).findFirst();
-        Provinsi provinsi = realm.where(Provinsi.class).equalTo("id", Integer.parseInt(dp.getProvinsi())).findFirst();
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MM-yyyy HH:mm:ss", Locale.getDefault());
+
+        if(dp.getDesa() == null || dp.getDesa().matches("") || dp.getDesa().matches("null")) {
+        } else desa_kel = realm.where(Desa.class).equalTo("id", Long.parseLong(dp.getDesa())).findFirst();
+
+
+        if(dp.getKecamatan() == null || dp.getKecamatan().matches("") || dp.getKecamatan().matches("null")) {
+        } else kecamatan = realm.where(Kecamatan.class).equalTo("id", Integer.parseInt(dp.getKecamatan())).findFirst();
+
+
+        if(dp.getKota() == null || dp.getKota().matches("") || dp.getKota().matches("null")) {
+        } else kab = realm.where(Kabupaten.class).equalTo("id", Integer.parseInt(dp.getKota())).findFirst();
+
+        if(dp.getProvinsi() == null || dp.getProvinsi().matches("") || dp.getProvinsi().matches("null")) {
+        } else provinsi = realm.where(Provinsi.class).equalTo("id", Integer.parseInt(dp.getProvinsi())).findFirst();
 
         if(dp.getKonsultan1() == null || dp.getKonsultan1().matches("")) {
             holder.konsultan.setText("Konsultan: <konsultan_blm_dipilih>");
@@ -132,19 +149,15 @@ public class MyListDataRecyclerViewAdapter
         StringBuilder lokasi = new StringBuilder();
         lokasi.append(tjalan);
 
-        String tdesa = "<desa_kosong>";
-        StringBuilder desa = new StringBuilder();
+        String desa = "<desa_kosong>";
         if(desa_kel != null) {
-            tdesa = (desa_kel.getName() == null || desa_kel.getName().matches("null") || desa_kel.getName().matches("")) ? "<desa_kosong>": desa_kel.getName();
+            desa = (desa_kel.getName() == null || desa_kel.getName().matches("null") || desa_kel.getName().matches("")) ? "<desa_kosong>": desa_kel.getName();
         }
-        desa.append(tdesa);
 
-        String tkec = "<kec_kosong>";
-        StringBuilder kec = new StringBuilder();
+        String kec = "<kec_kosong>";
         if(kecamatan != null) {
-            tkec = (kecamatan.getName() == null || kecamatan.getName().matches("null") || kecamatan.getName().matches("")) ? "<kec_kosong>": kecamatan.getName();
+            kec = (kecamatan.getName() == null || kecamatan.getName().matches("null") || kecamatan.getName().matches("")) ? "<kec_kosong>": kecamatan.getName();
         }
-        kec.append(tkec);
 
         String tkab = "<kab_kosong>";
         if(kab != null) {
@@ -153,7 +166,7 @@ public class MyListDataRecyclerViewAdapter
 
         String tprov = "<prov_kosong>";
         if(provinsi != null) {
-            tprov = (provinsi.getNama_prov() == null || provinsi.getNama_prov().matches("null") || provinsi.getNama_prov().matches("")) ? "<prov_kosong>": kab.getName();
+            tprov = (provinsi.getNama_prov() == null || provinsi.getNama_prov().matches("null") || provinsi.getNama_prov().matches("")) ? "<prov_kosong>": provinsi.getNama_prov();
         }
 
         StringBuilder kab_prov = new StringBuilder();
@@ -183,7 +196,7 @@ public class MyListDataRecyclerViewAdapter
         holder.kecamatan.setText(kec);
 
         holder.kab_provinsi.setText(kab_prov);
-        holder.tgl_catat.setText(String.valueOf(dp.getTgl_catat()));
+        holder.tgl_catat.setText(sdf.format(dp.getTgl_catat()));
 
         String is_online = (dp.isIs_dikirim()) ? "[online]" : "[offline]";
 
@@ -195,7 +208,7 @@ public class MyListDataRecyclerViewAdapter
             holder.is_online.setText(is_online);
         }
 
-        String tgl_presen = (dp.getTgl_penyuluhan() == null || String.valueOf(dp.getTgl_penyuluhan()).matches("")) ? "<tgl_penyuluhan_belum_disi>" : String.valueOf(dp.getTgl_penyuluhan());
+        String tgl_presen = (dp.getTgl_penyuluhan() == null || String.valueOf(dp.getTgl_penyuluhan()).matches("")) ? "<tgl_penyuluhan_belum_disi>" : sdf.format(dp.getTgl_penyuluhan());
         String jam_presentasi = (dp.getWaktu_penyuluhan() == null || dp.getWaktu_penyuluhan().matches("")) ? "<jam_belum_disi>": dp.getWaktu_penyuluhan();
 
         StringBuilder presentasi = new StringBuilder()
@@ -203,7 +216,7 @@ public class MyListDataRecyclerViewAdapter
                 .append(" ")
                 .append(jam_presentasi);
 
-        holder.tgl_presentasi.setText(presentasi);
+        holder.tgl_presentasi.setText(tgl_presen);
 
         String status_koordinator = dp.isStatus_koor() ? "[DIVALIDASI KOORDINATOR]" : "[BELUM DICEK KOOR]";
         String status_ma = dp.isStatus_ma() ? "[DIVALIDASI MANAGER AREA]" : "[BELUM DICEK MA]";

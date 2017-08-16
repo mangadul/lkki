@@ -32,4 +32,9 @@ public class Konsultan extends RealmObject {
     public void setEmail(String email) { this.email = email; }
     public String getEmail(){ return email; }
 
+    @Override
+    public String toString() {
+        return nama_konsultan;
+    }
+
 }
